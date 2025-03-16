@@ -1,17 +1,9 @@
-import React, {useContext, useEffect, useState} from "react";
+import React from 'react'
 
-function Homepage({ apiKey, baseUrl }) {
-
-
-    return (
-        <div>
-            <StoryCard />
-            
-        </div>
-
-    );
-
-
+function Homepage() {
+  return (
+    <div>Homepage</div>
+  )
 }
 
 export default Homepage

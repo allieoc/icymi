@@ -3,7 +3,8 @@ import React, {useState} from 'react'
 
 function StoryCard() {
   return (
-    <div>StoryCard</div>
+  <div>StoryCard</div>
+
   )
 }
 
