@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import StoryCard from "../../components/StoryCard/StoryCard";
-import { fetchReutersTopNews } from "../../utils/rssParsers";
 
 
 export default function Homepage() {
@@ -412,7 +411,6 @@ export default function Homepage() {
         safeFetch(() => fetchGNewsSection("nation")),
         safeFetch(fetchMediastackNews),
         safeFetch(fetchRedditTrending),
-        safeFetch(fetchReutersTopNews)
       ]);
 
       
