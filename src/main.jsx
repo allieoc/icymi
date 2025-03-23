@@ -1,14 +1,15 @@
-console.log("🚀 React is starting...");
-
 import React from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App";
 
-const rootElement = document.getElementById("root");
+const root = document.getElementById("root");
 
-if (!rootElement) {
-  console.error("❌ No root element found!");
+if (root) {
+  ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
 } else {
-  console.log("✅ Root element found, rendering React...");
-
-  rootElement.innerHTML = "<h1 style='color: red'>🔥 React is Running 🔥</h1>";
+  console.error("❌ No root element found!");
 }
