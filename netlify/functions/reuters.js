@@ -1,33 +1,28 @@
-// netlify/functions/reuters.js
-
-import Parser from 'rss-parser';
+import Parser from "rss-parser";
 
 const parser = new Parser();
 
 export async function handler(event, context) {
-  const feedUrl = 'https://www.reutersagency.com/feed/?best-topics=top-news'; // Top news RSS
-
   try {
-    const feed = await parser.parseURL(feedUrl);
-
-    const articles = feed.items.map((item) => ({
+    const feed = await parser.parseURL("https://www.reutersagency.com/feed/?best-topics=top-news");
+    const stories = feed.items.slice(0, 10).map((item) => ({
       title: item.title,
       description: item.contentSnippet || "",
       link: item.link,
-      pubDate: item.pubDate,
       image_url: item.enclosure?.url || null,
       sourceLabel: "Reuters",
+      pubDate: item.pubDate,
     }));
 
     return {
       statusCode: 200,
-      body: JSON.stringify(articles),
+      body: JSON.stringify(stories),
     };
-  } catch (error) {
-    console.error("❌ Error parsing Reuters feed:", error);
+  } catch (err) {
+    console.error("❌ Failed to parse Reuters feed:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to parse feed" }),
+      body: JSON.stringify({ error: "Failed to fetch Reuters feed" }),
     };
   }
 }

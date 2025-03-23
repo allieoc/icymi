@@ -1,9 +1,8 @@
 [build]
   functions = "netlify/functions"
-  publish = "dist" # or "build" if you're not using Vite
-
+  publish = "dist"
+  
 [[redirects]]
   from = "/api/reuters"
   to = "/.netlify/functions/reuters"
   status = 200
-

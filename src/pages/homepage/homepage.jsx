@@ -16,6 +16,7 @@ export default function Homepage() {
   const newsdataBase = import.meta.env.VITE_NEWSDATA_BASE_URL;
 
 
+
   async function fetchGuardianSection(guardianSection, sourceLabel = "The Guardian") {
     const key = import.meta.env.VITE_GUARDIAN_API_KEY;
     const url = `https://content.guardianapis.com/search?api-key=${key}&show-fields=thumbnail,headline,trailText,short-url&order-by=newest&section=${guardianSection}&page-size=10`;
@@ -280,6 +281,17 @@ export default function Homepage() {
     }
   }
 
+  async function fetchReutersTop() {
+    try {
+      const res = await fetch("/api/reuters");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch Reuters Top News:", err);
+      return [];
+    }
+  }
+
   function dedupedStories(stories) {
     const seen = new Set();
     return stories.filter((story) => {
@@ -393,27 +405,28 @@ export default function Homepage() {
         newsdataPolitics,
         newsdataWorld,
         newsdataBusiness,
-        newsdataHealth,
         guardianUS,
         guardianWorld,
         gnewsWorld,
         gnewsNation,
         mediastackNews,
-        reddit
+        reddit,
+        reutersTop
       ] = await Promise.all([
         safeFetch(() => fetchNewsDataSection("politics")),
         safeFetch(() => fetchNewsDataSection("world")),
         safeFetch(() => fetchNewsDataSection("business")),
-        safeFetch(() => fetchNewsDataSection("health")),
         safeFetch(() => fetchGuardianSection("us-news")),
         safeFetch(() => fetchGuardianSection("world")),
         safeFetch(() => fetchGNewsSection("world")),
         safeFetch(() => fetchGNewsSection("nation")),
         safeFetch(fetchMediastackNews),
         safeFetch(fetchRedditTrending),
+        safeFetch(fetchReutersTop)
       ]);
 
-      
+      console.log("📰 Reuters top stories:", reutersTop.map((s) => s.title));
+
 
   
       // 🧠 Merge all top candidates
@@ -426,6 +439,7 @@ export default function Homepage() {
         ...gnewsWorld,
         ...gnewsNation,
         ...mediastackNews,
+        ...reutersTop,
       ].filter(isNationalNews);
   
       // 🧽 De-duplicate
@@ -552,8 +566,8 @@ export default function Homepage() {
 
       {/* === SMALLER STORIES === */}
       <div className="side-list">
-        {topStories.slice(1).map((story) => (
-          <StoryCard key={story.link} story={story} />
+        {topStories.slice(1).map((story, index) => (
+          <StoryCard key={`${story.link}-${index}`} story={story} />
         ))}
       </div>
 
@@ -563,40 +577,40 @@ export default function Homepage() {
             {/* === Politics Section === */}
       <section>
         <h2>Politics</h2>
-        {politicsNews?.length > 0 && politicsNews.map((story) => (
-          <StoryCard key={story.link} story={story} />
+        {politicsNews?.length > 0 && politicsNews.map((story, index) => (
+          <StoryCard key={`${story.link}-${index}`} story={story} />
         ))}
       </section>
 
       {/* === Health & Science Section === */}
       <section>
         <h2>Health & Science</h2>
-        {healthScienceNews?.length > 0 && healthScienceNews.map((story) => (
-          <StoryCard key={story.link} story={story} />
+        {healthScienceNews?.length > 0 && healthScienceNews.map((story, index) => (
+          <StoryCard key={`${story.link}-${index}`} story={story} />
         ))}
       </section>
 
       {/* === World News Section === */}
       <section>
         <h2>World News</h2>
-        {worldNews?.length > 0 && worldNews.map((story) => (
-          <StoryCard key={story.link} story={story} />
+        {worldNews?.length > 0 && worldNews.map((story, index) => (
+          <StoryCard key={`${story.link}-${index}`} story={story} />
         ))}
       </section>
 
       {/* === Business & Tech Section === */}
       <section>
         <h2>Business & Tech</h2>
-        {businessTechNews?.length > 0 && businessTechNews.map((story) => (
-          <StoryCard key={story.link} story={story} />
+        {businessTechNews?.length > 0 && businessTechNews.map((story, index) => (
+          <StoryCard key={`${story.link}-${index}`} story={story} />
         ))}
       </section>
 
       {/* === Trending Stories Section === */}
       <section>
         <h2>Trending on Reddit</h2>
-        {trendingNews?.length > 0 && trendingNews.map((story) => (
-          <StoryCard key={story.link} story={story} />
+        {trendingNews?.length > 0 && trendingNews.map((story, index) => (
+          <StoryCard key={`${story.link}-${index}`} story={story} />
         ))}
       </section>
 
