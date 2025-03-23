@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import StoryCard from "../../components/StoryCard/StoryCard";
+import { fetchReutersTopNews } from "../../utils/rssParsers";
+
 
 export default function Homepage() {
  const [topStories, setTopStories] = useState([]);
@@ -7,16 +9,12 @@ export default function Homepage() {
   const [healthNews, setHealthNews] = useState([]);
   const [trendingNews, setTrendingNews] = useState([]);
   const [loading, setLoading] = useState(true);
-  //const [guardianTop, setGuardianTop] = useState([]);
-  //const [guardianPolitics, setGuardianPolitics] = useState([]);
- // const [guardianHealth, setGuardianHealth] = useState([]);
-
-
+  const [worldNews, setWorldNews] = useState([]);
+  const [businessTechNews, setBusinessTechNews] = useState([]);
+  const [healthScienceNews, setHealthScienceNews] = useState([]);
 
   const newsdataKey = import.meta.env.VITE_NEWSDATA_API_KEY;
   const newsdataBase = import.meta.env.VITE_NEWSDATA_BASE_URL;
-
-  
 
 
   async function fetchGuardianSection(guardianSection, sourceLabel = "The Guardian") {
@@ -349,6 +347,44 @@ export default function Homepage() {
     return !fluffIndicators.some((keyword) => title.includes(keyword));
   }
 
+
+  function belongsToPolitics(story) {
+    const title = story.title?.toLowerCase() || "";
+    return title.includes("biden") || title.includes("trump") ||
+           title.includes("congress") || title.includes("senate") ||
+           title.includes("election") || title.includes("white house") ||
+           title.includes("governor") || title.includes("house speaker");
+  }
+  
+  function belongsToHealthScience(story) {
+    const title = story.title?.toLowerCase() || "";
+    return title.includes("covid") || title.includes("vaccine") ||
+           title.includes("cdc") || title.includes("health") ||
+           title.includes("virus") || title.includes("outbreak") ||
+           title.includes("study") || title.includes("research") ||
+           title.includes("cancer") || title.includes("medical");
+  }
+  
+  function belongsToWorld(story) {
+    const title = story.title?.toLowerCase() || "";
+    return title.includes("gaza") || title.includes("ukraine") ||
+           title.includes("russia") || title.includes("china") ||
+           title.includes("iran") || title.includes("israel") ||
+           title.includes("un") || title.includes("foreign") ||
+           title.includes("eu") || title.includes("global");
+  }
+  
+  function belongsToBusinessTech(story) {
+    const title = story.title?.toLowerCase() || "";
+    return title.includes("tech") || title.includes("ai") ||
+           title.includes("stock") || title.includes("startup") ||
+           title.includes("economy") || title.includes("inflation") ||
+           title.includes("bank") || title.includes("crypto") ||
+           title.includes("layoffs") || title.includes("google") ||
+           title.includes("apple") || title.includes("microsoft");
+  }
+  
+
   // Load all sections
   useEffect(() => {
     async function fetchAllNews() {
@@ -375,7 +411,8 @@ export default function Homepage() {
         safeFetch(() => fetchGNewsSection("world")),
         safeFetch(() => fetchGNewsSection("nation")),
         safeFetch(fetchMediastackNews),
-        safeFetch(fetchRedditTrending)
+        safeFetch(fetchRedditTrending),
+        safeFetch(fetchReutersTopNews)
       ]);
 
       
@@ -431,11 +468,59 @@ export default function Homepage() {
   
       // 📰 Final list of 6 top stories
       setTopStories([featured, ...sideStories]);
-  
-      // Other sections (lighter filtering)
-      setPoliticsNews([...newsdataPolitics, ...guardianUS].filter(isNationalNews));
-      setHealthNews(newsdataHealth.filter(isNationalNews));
-      setTrendingNews(reddit);
+
+      // ✨ Track used links
+      const usedLinks = new Set([
+        featured?.link,
+        ...sideStories.map((s) => s.link),
+      ]);
+
+      function fillSection(label, stories, fallbackPool) {
+        // Deduped by link
+        const uniqueStories = stories.filter((s) => !usedLinks.has(s.link)).slice(0, 5);
+
+        // If less than 5, backfill from general pool
+        let finalStories = [...uniqueStories];
+        if (finalStories.length < 5) {
+          const fillers = fallbackPool.filter(
+            (s) => !usedLinks.has(s.link) && !uniqueStories.includes(s)
+          ).slice(0, 5 - finalStories.length);
+
+          finalStories = [...finalStories, ...fillers];
+        }
+
+        // Update usedLinks
+        finalStories.forEach((s) => usedLinks.add(s.link));
+
+        // Set the state
+        switch (label) {
+          case "politics":
+            setPoliticsNews(finalStories);
+            break;
+          case "world":
+            setWorldNews(finalStories);
+            break;
+          case "businessTech":
+            setBusinessTechNews(finalStories);
+            break;
+          case "healthScience":
+            setHealthScienceNews(finalStories);
+            break;
+        }
+      }
+
+      // 📥 Other stories not in Top 6
+      const otherStories = deduped.filter((s) => !usedLinks.has(s.link));
+
+      // 🔄 Fill each section with fallback logic
+      fillSection("politics", otherStories.filter(belongsToPolitics).filter(isNationalNews), otherStories);
+      fillSection("world", otherStories.filter(belongsToWorld).filter(isNationalNews), otherStories);
+      fillSection("businessTech", otherStories.filter(belongsToBusinessTech).filter(isNationalNews), otherStories);
+      fillSection("healthScience", otherStories.filter(belongsToHealthScience).filter(isNationalNews), otherStories);
+
+      // 🎯 Trending is separate (Reddit only)
+      setTrendingNews(reddit.slice(0, 5));
+
   
       // 🔍 Helpful logs
       console.log("🧠 Featured:", featured?.title);
@@ -444,14 +529,13 @@ export default function Homepage() {
   
       setLoading(false);
     }
+    
   
     fetchAllNews();
   }, []);
   
   if (!topStories.length || !topStories[0]) return <p>No stories available right now.</p>;
   if (loading) return <p>Loading the world…</p>;
-
-  
 
 
   return (
@@ -478,18 +562,34 @@ export default function Homepage() {
     </section>
 
 
-      {/* === Politics Section === */}
+            {/* === Politics Section === */}
       <section>
         <h2>Politics</h2>
-        {politicsNews?.length > 0 && politicsNews.slice(0, 5).map((story) => (
+        {politicsNews?.length > 0 && politicsNews.map((story) => (
           <StoryCard key={story.link} story={story} />
         ))}
       </section>
 
-      {/* === Health Section === */}
+      {/* === Health & Science Section === */}
       <section>
-        <h2>Health</h2>
-        {healthNews?.length > 0 && healthNews.slice(0, 5).map((story) => (
+        <h2>Health & Science</h2>
+        {healthScienceNews?.length > 0 && healthScienceNews.map((story) => (
+          <StoryCard key={story.link} story={story} />
+        ))}
+      </section>
+
+      {/* === World News Section === */}
+      <section>
+        <h2>World News</h2>
+        {worldNews?.length > 0 && worldNews.map((story) => (
+          <StoryCard key={story.link} story={story} />
+        ))}
+      </section>
+
+      {/* === Business & Tech Section === */}
+      <section>
+        <h2>Business & Tech</h2>
+        {businessTechNews?.length > 0 && businessTechNews.map((story) => (
           <StoryCard key={story.link} story={story} />
         ))}
       </section>
@@ -497,10 +597,11 @@ export default function Homepage() {
       {/* === Trending Stories Section === */}
       <section>
         <h2>Trending on Reddit</h2>
-        {trendingNews?.length > 0 && trendingNews.slice(0, 5).map((story) => (
+        {trendingNews?.length > 0 && trendingNews.map((story) => (
           <StoryCard key={story.link} story={story} />
         ))}
       </section>
+
     </div>
   );
 }

@@ -1,0 +1,22 @@
+.meta-info {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #555;
+    margin-top: 0.5rem;
+  }
+  
+  .source-badge {
+    background-color: #eee;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #333;
+  }
+  
+  .timestamp {
+    color: #888;
+  }
+  
