@@ -111,46 +111,62 @@ export default function Homepage() {
     const link = story.link?.toLowerCase() || "";
     const sourceName = story.source_name?.toLowerCase() || story.sourceLabel?.toLowerCase() || "";
   
-    // 🚫 Fluff, soft content, or low-signal topics
-    const excludedKeywords = [
-      // Local
-      "town hall", "county", "mayor", "city council", "village", "sheriff", "school board", "township",
+    const strictKeywords = [
+      "nutrition", "hydration", "routine", "mindfulness", "diet",
+      "yoga", "meditation", "perspective", "opinion", "editorial", "baby photo",
+      "column", "investors", "box office", "sale", "celebrity", "agriculture", "books",
+      "book club", "true crime", "culture wars",
+    ];
   
-      // Shopping & affiliate
-      "essentials", "best deals", "must-have", "available now", "buy now", "promo code", "amazon picks",
-      "gift guide", "shopping list", "wishlist", "discount", "shop with us", "sponsored",
-  
-      // Entertainment & pop culture
-      "celebrity", "oscars", "grammys", "trailer", "blockbuster", "tv show", "finale", "season premiere",
-      "red carpet", "movie preview", "cast revealed", "reality show", "music video",
-  
-      // Wellness & lifestyle
-      "wellness", "hydration", "skin care", "routine", "mental health tips", "self-care", "how to sleep better",
-      "fitness tips", "diet", "nutrition", "gut health", "yoga", "meditation", "mindfulness",
-  
-      // Opinion or first-person
-      "opinion:", "editorial:", "i believe", "my take", "guest essay", "column:", "viewpoint", "perspective",
-
-      // Soft or human-interest topics
-      "bald eagle", "rescued", "adopted", "foster", "puppy", "kitten", "animal shelter", 
-      "surprise reunion", "heartwarming", "hero dog", "animal saves", "go fund me",
-      "emotional support", "zoo", "baby animal", "caretaker", "rehab center", 
-      "elderly couple", "birthday wish", "community rallies", "reunited"
-
+    const looseKeywords = [
+      "shop with us", "puppy", "kitten", "zoo", "rescued", "gift guide",
+      "promo code", "bald eagle", "baby animal", "surprise reunion",
+      "gut health", "best deals", "hero dog", "trends", "instagram", "shocking",
+      "surprising", "you won't believe", "blog", "interface", "fans", 
     ];
   
     const excludedSources = [
       "us weekly", "tmz", "eonline", "thecouriertimes", "sports illustrated", "espn", "et online",
-      "buzzfeed", "shape", "goop", "well+good", "mindbodygreen", "parade", "everyday health", "daily press", "Analytics And Insight"
+      "buzzfeed", "shape", "goop", "well+good", "mindbodygreen", "parade", "everyday health", "daily press", 
+      "Analytics And Insight", "forbes", "daily mail", "dailymail", "alternet", "digitaltrends", "hothardware",
+      "zme science", "oc register", "orange county register", "hello magazine", "boston herald",
     ];
 
-    const isTooShort = (story.description?.length || 0) < 50;
+    const sportsKeywords = [
+      "nfl", "nba", "mlb", "nhl", "ncaa", "march madness", "super bowl", "playoffs",
+      "world cup", "olympics", "final four", "championship", "draft pick", "trade rumors",
+      "preseason", "postseason", "spring training", "game recap", "injury report", "sideline",
+      "touchdown", "halftime", "quarterback", "pitcher", "home run", "goalkeeper", "soccer match",
+      "football game", "basketball game", "baseball game", "tennis match", "golf tournament",
+      "sports update", "sports roundup", "player profile", "athlete", "coach", "team", "scoreboard",
+      "locker room", "buzzer beater", "highlight reel", "sports drama", "sports controversy", "ufc", "premier league",
+      "horse racing", "gold medal", "silver medal", "bronze medal",
+    ];
 
+    const sportsSources = [
+      "espn", "bleacher report", "sports illustrated", "cbssports", "nbcsports",
+      "fox sports", "sporting news", "barstool sports", "mlb.com", "nba.com", "nfl.com",
+      "the athletic", "skysports", "yahoo sports", "sb nation", "247sports", "tennis.com",
+      "golf digest", "draft kings", "fanduel", "sportsnet", "usatoday sports", "hockey news",
+      "the ringer sports"
+    ];
+    
+    
   
-    const hasFluffKeyword = excludedKeywords.some((word) =>
+    //const isTooShort = (story.description?.length || 0) < 50;
+    //const hasImage = !!story.image_url;
+  
+    // Check strict keywords using word boundaries
+    const hitStrict = strictKeywords.some((word) => {
+      const regex = new RegExp(`\\b${word}\\b`, "i");
+      return regex.test(title) || regex.test(description);
+    });
+  
+    // Check loose keywords with basic substring match
+    const hitLoose = looseKeywords.some((word) =>
       title.includes(word) || description.includes(word)
     );
-    
+  
     const isFromFluffSource = excludedSources.some((src) =>
       sourceName.includes(src) || link.includes(src)
     );
@@ -158,17 +174,93 @@ export default function Homepage() {
     const isFromOpinionSection =
       link.includes("/opinion/") || link.includes("/editorial/") || link.includes("/perspective/");
 
-    const hasImage = !!story.image_url;
+      const isSportsStory =
+      sportsKeywords.some((word) =>
+        title.includes(word) || description.includes(word)
+      ) ||
+      sportsSources.some((src) =>
+        sourceName.includes(src) || link.includes(src)
+      );
 
-    return !hasFluffKeyword && !isFromFluffSource && !isFromOpinionSection && isTooShort && hasImage;
+      if (isSportsStory) {
+        console.log("🚫 Rejected for SPORTS:", story.title);
+      }
+
+      const isMediastack = sourceName.includes("mediastack");
+      if (isMediastack) {
+        const mediastackFluff = [
+          "horse racing", "consensus picks", "powerball numbers", "lotto", "snow white",
+          "opens to", "box office", "celebrity", "fun fact", "kicks off", "fashion", "tv show",
+          "santa anita", "red carpet", "bachelorette", "netflix releases", "cast revealed", "spoiler alert",
+          "dating rumors", "love island"
+        ];
+
+        const hasMediastackFluff = mediastackFluff.some((term) =>
+          title.includes(term) || description.includes(term)
+        );
+
+        const isTooShort = title.length < 40;
+        const isLikelyFluff = hasMediastackFluff || isTooShort;
+
+        if (isLikelyFluff) {
+          console.log("🚫 Rejected from Mediastack:", title);
+          return false;
+        }
+      }
+
+
+  
+    const isFluff = hitStrict || hitLoose || isFromFluffSource || isFromOpinionSection || isSportsStory; //|| isTooShort || !hasImage;
+  
+    if (isFluff) {
+      console.log("🚫 Rejected:", {
+        title: story.title,
+        source: sourceName,
+        hitStrict,
+        hitLoose,
+        isFromFluffSource,
+        isFromOpinionSection,
+        isSportsStory,
+        //isTooShort,
+        //hasImage
+      });
+    }
+  
+    return !isFluff;
   }
   
   
   
   
   
+  async function fetchMediastackNews(sourceLabel = "Mediastack") {
+    const key = import.meta.env.VITE_MEDIASTACK_API_KEY;
+    const url = `http://api.mediastack.com/v1/news?access_key=${key}&countries=us&languages=en&limit=10&sort=published_desc`;
   
-
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+  
+      if (!Array.isArray(data.data)) {
+        console.warn("⚠️ Unexpected Mediastack response:", data);
+        return [];
+      }
+  
+      return data.data.map((story) => ({
+        title: story.title,
+        description: story.description,
+        link: story.url,
+        image_url: story.image,
+        sourceLabel,
+        pubDate: story.published_at,
+      }));
+    } catch (err) {
+      console.error("❌ Error fetching Mediastack news:", err);
+      return [];
+    }
+  }
+  
+  
   // Fetch trending stories from Reddit
   async function fetchRedditTrending() {
     try {
@@ -191,15 +283,47 @@ export default function Homepage() {
     }
   }
 
-  function dedupeStoriesByLink(stories) {
+  function dedupedStories(stories) {
     const seen = new Set();
     return stories.filter((story) => {
-      if (seen.has(story.link)) return false;
+      if (seen.has(story.link + story.title)) return false;
       seen.add(story.link);
       return true;
     });
   }
 
+  const preferredSources = [
+    "mediastack",
+    "reuters",
+    "associated press",
+    "npr",
+    "bbc",
+    "the guardian",
+    "cnn",
+    "axios",
+    "politico"
+  ];
+
+  function sortBySourcePriority(stories) {
+    return stories.sort((a, b) => {
+      const aSource = a.sourceLabel?.toLowerCase() || "";
+      const bSource = b.sourceLabel?.toLowerCase() || "";
+  
+      const aIndex = preferredSources.findIndex(src => aSource.includes(src));
+      const bIndex = preferredSources.findIndex(src => bSource.includes(src));
+  
+      // If both found, sort by index
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+  
+      // If one is found, prioritize it
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+  
+      // Fallback to date
+      return new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0);
+    });
+  }
+  
 
   async function safeFetch(fetchFn) {
     try {
@@ -210,76 +334,124 @@ export default function Homepage() {
       return [];
     }
   }
+
+  function isTrulyHardNews(story) {
+    const fluffIndicators = [
+      "conan", "celebrity", "award", "prize", "mark twain", "funny", "humor",
+      "sports", "pitch count", "miami open", "mets", "yankees", "nfl", "nba",
+      "steelers", "patriots", "trade", "coach", "mlb", "mls", "tennis", "soccer",
+      "stadium", "tournament", "draft", "game", "championship", "player",
+      "next-generation", "tech upgrade", "product release", "bandwidth",
+      "influencer", "viral", "tiktok", "trend", "stock", "pricing",
+    ];
   
+    const title = story.title?.toLowerCase() || "";
+    return !fluffIndicators.some((keyword) => title.includes(keyword));
+  }
 
   // Load all sections
   useEffect(() => {
     async function fetchAllNews() {
       setLoading(true);
-
+  
       const [
         newsdataPolitics,
         newsdataWorld,
         newsdataBusiness,
-        newsdataHealth, // Optional
+        newsdataHealth,
         guardianUS,
         guardianWorld,
         gnewsWorld,
         gnewsNation,
+        mediastackNews,
         reddit
       ] = await Promise.all([
         safeFetch(() => fetchNewsDataSection("politics")),
         safeFetch(() => fetchNewsDataSection("world")),
         safeFetch(() => fetchNewsDataSection("business")),
+        safeFetch(() => fetchNewsDataSection("health")),
         safeFetch(() => fetchGuardianSection("us-news")),
         safeFetch(() => fetchGuardianSection("world")),
         safeFetch(() => fetchGNewsSection("world")),
         safeFetch(() => fetchGNewsSection("nation")),
+        safeFetch(fetchMediastackNews),
         safeFetch(fetchRedditTrending)
       ]);
 
-
- 
       
-      // Combine curated categories for Top Stories
+
+  
+      // 🧠 Merge all top candidates
       const allTopCandidates = [
+        ...newsdataPolitics,
+        ...newsdataWorld,
+        ...newsdataBusiness,
         ...guardianUS,
         ...guardianWorld,
         ...gnewsWorld,
         ...gnewsNation,
-        ...newsdataPolitics,
-        ...newsdataWorld,
-        ...newsdataBusiness,
+        ...mediastackNews,
       ].filter(isNationalNews);
+  
+      // 🧽 De-duplicate
+      const deduped = dedupedStories(allTopCandidates);
 
-        const dedupedTop = dedupeStoriesByLink(allTopCandidates);
+      //Sort by source preference
+      const sortedByPriority = sortBySourcePriority(deduped);
 
-        // Sort by pubDate
-        const sortedTopStories = dedupedTop.sort(
-          (a, b) => new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0)
-        );
-        
 
-        // Grab the top 6
-        const top6 = sortedTopStories.slice(0, 6);
-        setTopStories(top6);
-        setPoliticsNews([...newsdataPolitics, ...guardianUS].filter(isNationalNews));
-        setHealthNews(newsdataHealth.filter(isNationalNews));
-        setTrendingNews(reddit);
-
-        console.log("🧠 Curated Top 6:", top6);
-
-      
-    setLoading(false);
+      console.log("📥 All top candidates before filtering:", allTopCandidates.length);
+      console.log("🧹 Deduped top candidates:", deduped.length);
+  
+      // 🧹 Remove soft stories from FEATURED story only
+      const hardNews = sortedByPriority.filter(isTrulyHardNews);
+      const softNews = sortedByPriority.filter((story) => !isTrulyHardNews(story));      
+  
+      // 🗂️ Sort by date
+      const sortedHard = hardNews.sort((a, b) =>
+        new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0)
+      );
+      const sortedSoft = softNews.sort((a, b) =>
+        new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0)
+      );
+  
+      // ⭐ Pick one hard news story as FEATURED
+      const featured = sortedHard[0];
+  
+      // 📝 Get up to 5 side stories (de-duped)
+      let sideStories = sortedHard
+        .filter((s) => s.link !== featured?.link)
+        .slice(0, 5);
+  
+      // 💬 Backfill with soft stories if needed
+      if (sideStories.length < 5) {
+        const fillCount = 5 - sideStories.length;
+        sideStories = [...sideStories, ...sortedSoft.slice(0, fillCount)];
+      }
+  
+      // 📰 Final list of 6 top stories
+      setTopStories([featured, ...sideStories]);
+  
+      // Other sections (lighter filtering)
+      setPoliticsNews([...newsdataPolitics, ...guardianUS].filter(isNationalNews));
+      setHealthNews(newsdataHealth.filter(isNationalNews));
+      setTrendingNews(reddit);
+  
+      // 🔍 Helpful logs
+      console.log("🧠 Featured:", featured?.title);
+      console.log("📄 Side stories:", sideStories.map((s) => s.title));
+      console.log("🗞 Mediastack stories:", mediastackNews.map((s) => s.title));
+  
+      setLoading(false);
     }
-
+  
     fetchAllNews();
-
-    
   }, []);
-
-
+  
+  if (!topStories.length || !topStories[0]) return <p>No stories available right now.</p>;
   if (loading) return <p>Loading the world…</p>;
+
+  
 
 
   return (
@@ -289,21 +461,20 @@ export default function Homepage() {
     <section className="top-stories">
       <h2>Top Stories</h2>
 
-      <div className="featured-and-list">
-        {/* === FEATURED STORY === */}
-        <div className="featured-story">
-          {topStories[0] && (
-            <StoryCard story={topStories[0]} isFeatured={true} />
-          )}
-        </div>
-
-        {/* === SMALLER STORIES === */}
-        <div className="side-list">
-          {topStories.slice(1, 6).map((story) => (
-            <StoryCard key={story.link} story={story} />
-          ))}
-        </div>
+      {/* === FEATURED STORY === */}
+      <div className="featured-story">
+        {topStories[0] && (
+          <StoryCard story={topStories[0]} isFeatured={true} />
+        )}
       </div>
+
+      {/* === SMALLER STORIES === */}
+      <div className="side-list">
+        {topStories.slice(1).map((story) => (
+          <StoryCard key={story.link} story={story} />
+        ))}
+      </div>
+
     </section>
 
 
