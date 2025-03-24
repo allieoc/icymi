@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import StoryCard from "../../components/StoryCard/StoryCard";
-
+import './Homepage.css'
 
 export default function Homepage() {
- const [topStories, setTopStories] = useState([]);
+  const [featuredStory, setFeaturedStory] = useState(null);
+  const [sideStories, setSideStories] = useState([]);  
   const [politicsNews, setPoliticsNews] = useState([]);
-  const [healthNews, setHealthNews] = useState([]);
   const [trendingNews, setTrendingNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [worldNews, setWorldNews] = useState([]);
@@ -14,8 +14,52 @@ export default function Homepage() {
 
   const newsdataKey = import.meta.env.VITE_NEWSDATA_API_KEY;
   const newsdataBase = import.meta.env.VITE_NEWSDATA_BASE_URL;
+  
+
+  async function fetchBBCWorld() {
+    try {
+      const res = await fetch("/api/bbc");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch BBC:", err);
+      return [];
+    }
+  }  
+
+  async function fetchABC() {
+    try {
+      const res = await fetch("/api/abc");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch ABC:", err);
+      return [];
+    }
+  }  
+
+  async function fetchAlJazeera() {
+    try {
+      const res = await fetch("/api/aljazeera");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch Al Jazeera:", err);
+      return [];
+    }
+  }  
 
 
+  async function fetchPBS() {
+    try {
+      const res = await fetch("/api/pbs");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch PBS:", err);
+      return [];
+    }
+  }  
 
   async function fetchGuardianSection(guardianSection, sourceLabel = "The Guardian") {
     const key = import.meta.env.VITE_GUARDIAN_API_KEY;
@@ -180,10 +224,6 @@ export default function Homepage() {
         sourceName.includes(src) || link.includes(src)
       );
 
-      if (isSportsStory) {
-        console.log("🚫 Rejected for SPORTS:", story.title);
-      }
-
       const isMediastack = sourceName.includes("mediastack");
       if (isMediastack) {
         const mediastackFluff = [
@@ -281,16 +321,17 @@ export default function Homepage() {
     }
   }
 
-  async function fetchReutersTop() {
+  async function fetchNPRTop() {
     try {
-      const res = await fetch("/api/reuters");
+      const res = await fetch("/api/npr");
       const data = await res.json();
       return data;
     } catch (err) {
-      console.error("❌ Failed to fetch Reuters Top News:", err);
+      console.error("❌ Failed to fetch NPR feed:", err);
       return [];
     }
   }
+  
 
   function dedupedStories(stories) {
     const seen = new Set();
@@ -302,16 +343,20 @@ export default function Homepage() {
   }
 
   const preferredSources = [
-    "mediastack",
-    "reuters",
     "associated press",
+    "pbs",
+    "abc news",
+    "al jazeera",
     "npr",
     "bbc",
+    "reuters",
+    "mediastack",
     "the guardian",
     "cnn",
     "axios",
     "politico"
   ];
+  
 
   function sortBySourcePriority(stories) {
     return stories.sort((a, b) => {
@@ -395,7 +440,32 @@ export default function Homepage() {
            title.includes("apple") || title.includes("microsoft");
   }
   
-
+  function interleaveBySource(stories) {
+    const groups = stories.reduce((acc, story) => {
+      const source = story.sourceLabel || "unknown";
+      if (!acc[source]) acc[source] = [];
+      acc[source].push(story);
+      return acc;
+    }, {});
+  
+    const result = [];
+    const groupKeys = Object.keys(groups);
+  
+    let added = true;
+    while (added) {
+      added = false;
+      for (const key of groupKeys) {
+        const group = groups[key];
+        if (group.length) {
+          result.push(group.shift());
+          added = true;
+        }
+      }
+    }
+  
+    return result;
+  }
+  
   // Load all sections
   useEffect(() => {
     async function fetchAllNews() {
@@ -411,7 +481,12 @@ export default function Homepage() {
         gnewsNation,
         mediastackNews,
         reddit,
-        reutersTop
+        nprTop,
+        bbc,
+        //apTop,
+        pbsTop,
+        abcTop,
+        aljazeeraTop
       ] = await Promise.all([
         safeFetch(() => fetchNewsDataSection("politics")),
         safeFetch(() => fetchNewsDataSection("world")),
@@ -422,12 +497,24 @@ export default function Homepage() {
         safeFetch(() => fetchGNewsSection("nation")),
         safeFetch(fetchMediastackNews),
         safeFetch(fetchRedditTrending),
-        safeFetch(fetchReutersTop)
+        safeFetch(fetchNPRTop),
+        safeFetch(fetchBBCWorld),
+        //safeFetch(fetchAP),
+        safeFetch(fetchPBS),
+        safeFetch(fetchABC),
+        safeFetch(fetchAlJazeera)
       ]);
 
-      console.log("📰 Reuters top stories:", reutersTop.map((s) => s.title));
-
-
+      console.log("✅ Raw sources fetched:", {
+        newsdataPolitics,
+        newsdataWorld,
+        bbc,
+        //apTop,
+        pbsTop,
+        abcTop,
+        aljazeeraTop,
+      });
+      
   
       // 🧠 Merge all top candidates
       const allTopCandidates = [
@@ -439,18 +526,24 @@ export default function Homepage() {
         ...gnewsWorld,
         ...gnewsNation,
         ...mediastackNews,
-        ...reutersTop,
+        ...nprTop,
+        ...bbc,
+        //...apTop,
+        ...pbsTop,
+        ...abcTop,
+        ...aljazeeraTop,
       ].filter(isNationalNews);
+
+      console.log("🧠 All top candidates before filtering:", allTopCandidates);
+
   
       // 🧽 De-duplicate
       const deduped = dedupedStories(allTopCandidates);
+      console.log("🧼 Deduped stories:", deduped);
 
       //Sort by source preference
       const sortedByPriority = sortBySourcePriority(deduped);
 
-
-      console.log("📥 All top candidates before filtering:", allTopCandidates.length);
-      console.log("🧹 Deduped top candidates:", deduped.length);
   
       // 🧹 Remove soft stories from FEATURED story only
       const hardNews = sortedByPriority.filter(isTrulyHardNews);
@@ -463,28 +556,25 @@ export default function Homepage() {
       const sortedSoft = softNews.sort((a, b) =>
         new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0)
       );
-  
-      // ⭐ Pick one hard news story as FEATURED
+
       const featured = sortedHard[0];
-  
-      // 📝 Get up to 5 side stories (de-duped)
-      let sideStories = sortedHard
-        .filter((s) => s.link !== featured?.link)
-        .slice(0, 5);
-  
+      let side = sortedHard.slice(1, 6);
+
       // 💬 Backfill with soft stories if needed
-      if (sideStories.length < 5) {
-        const fillCount = 5 - sideStories.length;
-        sideStories = [...sideStories, ...sortedSoft.slice(0, fillCount)];
+      if (side.length < 5) {
+        const fillCount = 5 - side.length;
+        side = [...side, ...sortedSoft.slice(0, fillCount)];
       }
-  
-      // 📰 Final list of 6 top stories
-      setTopStories([featured, ...sideStories]);
+
+      // Set top stories
+      setFeaturedStory(featured);
+      setSideStories(side);
+      setTopStories([featured, ...side]);
 
       // ✨ Track used links
       const usedLinks = new Set([
         featured?.link,
-        ...sideStories.map((s) => s.link),
+        ...side.map((s) => s.link),
       ]);
 
       function fillSection(label, stories, fallbackPool) {
@@ -525,11 +615,15 @@ export default function Homepage() {
       const otherStories = deduped.filter((s) => !usedLinks.has(s.link));
 
       // 🔄 Fill each section with fallback logic
-      fillSection("politics", otherStories.filter(belongsToPolitics).filter(isNationalNews), otherStories);
-      fillSection("world", otherStories.filter(belongsToWorld).filter(isNationalNews), otherStories);
-      fillSection("businessTech", otherStories.filter(belongsToBusinessTech).filter(isNationalNews), otherStories);
-      fillSection("healthScience", otherStories.filter(belongsToHealthScience).filter(isNationalNews), otherStories);
-
+      fillSection(
+        "politics",
+        interleaveBySource(otherStories.filter(belongsToPolitics).filter(isNationalNews)),
+        otherStories
+      );
+      fillSection("world", interleaveBySource(otherStories.filter(belongsToWorld).filter(isNationalNews)), otherStories);
+      fillSection("businessTech", interleaveBySource(otherStories.filter(belongsToBusinessTech).filter(isNationalNews)), otherStories);
+      fillSection("healthScience", interleaveBySource(otherStories.filter(belongsToHealthScience).filter(isNationalNews)), otherStories);
+      
       // 🎯 Trending is separate (Reddit only)
       setTrendingNews(reddit.slice(0, 5));
 
@@ -545,75 +639,133 @@ export default function Homepage() {
   
     fetchAllNews();
   }, []);
+
+     
+
   
   if (!topStories.length || !topStories[0]) return <p>No stories available right now.</p>;
-  if (loading) return <p>Loading the world…</p>;
+  try {
+    if (loading) return <p>Loading the world…</p>;
+    if (!featuredStory) return <p>No featured story yet.</p>;
+  
 
-
-  return (
-    
-    <div className="homepage">
-
+    return (
+      <div className="homepage">
     <section className="top-stories">
-      <h2>Top Stories</h2>
-
-      {/* === FEATURED STORY === */}
-      <div className="featured-story">
-        {topStories[0] && (
-          <StoryCard story={topStories[0]} isFeatured={true} />
+      <h2>Latest News</h2>
+      <div className="top-grid">
+        <div className="featured-story">
+        {featuredStory && (
+        <>
+          {console.log("👀 Rendering featured story:", featuredStory)}
+          {featuredStory.title && (
+            <StoryCard story={featuredStory} isFeatured={true} />
+          )}
+        </>
         )}
-      </div>
 
-      {/* === SMALLER STORIES === */}
-      <div className="side-list">
-        {topStories.slice(1).map((story, index) => (
-          <StoryCard key={`${story.link}-${index}`} story={story} />
-        ))}
-      </div>
+        </div>
 
+        <div className="side-stories">
+          {sideStories.map((story, index) => (
+            <StoryCard key={`${story.link}-${index}`} story={story} isCompact={true} />
+          ))}
+        </div>
+      </div>
     </section>
 
 
-            {/* === Politics Section === */}
-      <section>
-        <h2>Politics</h2>
-        {politicsNews?.length > 0 && politicsNews.map((story, index) => (
-          <StoryCard key={`${story.link}-${index}`} story={story} />
-        ))}
-      </section>
+  
+      <section className="section-grid">
+  {/* Politics */}
+  <div className="section-block politics">
+    <h2>Politics</h2>
+    {politicsNews.slice(0, 5).map((story, index) => (
+      <a
+        key={`${story.link}-${index}`}
+        href={story.link}
+        className="headline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <p>{story.title}</p>
+        <span className="source">{story.sourceLabel}</span>
+      </a>
+    ))}
+  </div>
 
-      {/* === Health & Science Section === */}
-      <section>
-        <h2>Health & Science</h2>
-        {healthScienceNews?.length > 0 && healthScienceNews.map((story, index) => (
-          <StoryCard key={`${story.link}-${index}`} story={story} />
-        ))}
-      </section>
+  {/* Health & Science */}
+  <div className="section-block health">
+    <h2>Health & Science</h2>
+    {healthScienceNews.slice(0, 5).map((story, index) => (
+      <a
+        key={`${story.link}-${index}`}
+        href={story.link}
+        className="headline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <p>{story.title}</p>
+        <span className="source">{story.sourceLabel}</span>
+      </a>
+    ))}
+  </div>
 
-      {/* === World News Section === */}
-      <section>
-        <h2>World News</h2>
-        {worldNews?.length > 0 && worldNews.map((story, index) => (
-          <StoryCard key={`${story.link}-${index}`} story={story} />
-        ))}
-      </section>
+  {/* World News */}
+  <div className="section-block world">
+    <h2>World News</h2>
+    {worldNews.slice(0, 5).map((story, index) => (
+      <a
+        key={`${story.link}-${index}`}
+        href={story.link}
+        className="headline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <p>{story.title}</p>
+        <span className="source">{story.sourceLabel}</span>
+      </a>
+    ))}
+  </div>
 
-      {/* === Business & Tech Section === */}
-      <section>
-        <h2>Business & Tech</h2>
-        {businessTechNews?.length > 0 && businessTechNews.map((story, index) => (
-          <StoryCard key={`${story.link}-${index}`} story={story} />
-        ))}
-      </section>
+  {/* Business & Tech */}
+  <div className="section-block tech">
+    <h2>Business & Tech</h2>
+    {businessTechNews.slice(0, 5).map((story, index) => (
+      <a
+        key={`${story.link}-${index}`}
+        href={story.link}
+        className="headline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <p>{story.title}</p>
+        <span className="source">{story.sourceLabel}</span>
+      </a>
+    ))}
+  </div>
 
-      {/* === Trending Stories Section === */}
-      <section>
-        <h2>Trending on Reddit</h2>
-        {trendingNews?.length > 0 && trendingNews.map((story, index) => (
-          <StoryCard key={`${story.link}-${index}`} story={story} />
-        ))}
-      </section>
-
-    </div>
+  {/* Trending on Reddit */}
+  <div className="section-block trending">
+    <h2>Trending on Reddit</h2>
+    {trendingNews.slice(0, 5).map((story, index) => (
+      <a
+        key={`${story.link}-${index}`}
+        href={story.link}
+        className="headline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <p>{story.title}</p>
+        <span className="source">{story.sourceLabel}</span>
+      </a>
+    ))}
+  </div>
+</section>
+</div>
   );
+} catch (err) {
+  console.error("💥 Error rendering Homepage:", err);
+  return <p>Something broke. Try refreshing?</p>;
+  };
 }

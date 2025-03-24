@@ -11,12 +11,14 @@ export default function App() {
     <BrowserRouter>
       <Header />
       <main style={{ padding: "1rem" }}>
+      <div className="max-w-screen-xl mx-auto px-4">
         <Routes>
           <Route
             path="/"
             element={<Homepage apiKey={apiKey} baseUrl={baseUrl} />}
           />
         </Routes>
+        </div>
       </main>
       <Footer />
     </BrowserRouter>

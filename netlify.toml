@@ -1,8 +1,38 @@
 [build]
   functions = "netlify/functions"
   publish = "dist"
-  
+
 [[redirects]]
-  from = "/api/reuters"
-  to = "/.netlify/functions/reuters"
+  from = "/api/npr"
+  to = "/.netlify/functions/npr"
+  status = 200
+
+[[redirects]]
+  from = "/api/techcrunch"
+  to = "/.netlify/functions/techcrunch"
+  status = 200
+
+[[redirects]]
+  from = "/api/bbc"
+  to = "/.netlify/functions/bbc"
+  status = 200
+
+[[redirects]]
+  from = "/api/abc"
+  to = "/.netlify/functions/abc"
+  status = 200
+
+  [[redirects]]
+  from = "/api/aljazeera"
+  to = "/.netlify/functions/aljazeera"
+  status = 200
+
+  [[redirects]]
+  from = "/api/ap"
+  to = "/.netlify/functions/ap"
+  status = 200
+
+  [[redirects]]
+  from = "/api/pbs"
+  to = "/.netlify/functions/pbs"
   status = 200
