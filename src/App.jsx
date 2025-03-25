@@ -10,8 +10,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Header />
-      <main style={{ padding: "1rem" }}>
-      <div className="max-w-screen-xl mx-auto px-4">
+      <main>
+      <div>
         <Routes>
           <Route
             path="/"

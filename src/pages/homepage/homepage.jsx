@@ -3,6 +3,8 @@ import StoryCard from "../../components/StoryCard/StoryCard";
 import './Homepage.css'
 
 export default function Homepage() {
+  console.log("homepage is rendering");
+  const [topStories, setTopStories] = useState([]);
   const [featuredStory, setFeaturedStory] = useState(null);
   const [sideStories, setSideStories] = useState([]);  
   const [politicsNews, setPoliticsNews] = useState([]);
@@ -14,13 +16,61 @@ export default function Homepage() {
 
   const newsdataKey = import.meta.env.VITE_NEWSDATA_API_KEY;
   const newsdataBase = import.meta.env.VITE_NEWSDATA_BASE_URL;
+
+  async function fetchMarketWatch() {
+    try {
+      const res = await fetch("/.netlify/functions/marketwatch");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch MarketWatch feed:", err);
+      return [];
+    }
+  }
   
+  
+  async function fetchNIH() {
+    try {
+      const res = await fetch("/.netlify/functions/nih");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch NIH feed:", err);
+      return [];
+    }
+  }
+  
+  async function fetchNewScientist() {
+    try {
+      const res = await fetch("/.netlify/functions/newscientist");
+      const data = await res.json();
+      console.log("new scientist data", data);
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch New Scientist feed:", err);
+      return [];
+    }
+  }
+  
+
+  async function fetchScienceDaily() {
+    try {
+      const res = await fetch("/.netlify/functions/sciencedaily");
+      const data = await res.json();
+      return data
+      
+    } catch (err) {
+      console.error("❌ Failed to fetch Science Daily:", err);
+      return [];
+    }
+  }  
 
   async function fetchBBCWorld() {
     try {
-      const res = await fetch("/api/bbc");
+      const res = await fetch("/.netlify/functions/bbc");
       const data = await res.json();
-      return data;
+      return data
+      
     } catch (err) {
       console.error("❌ Failed to fetch BBC:", err);
       return [];
@@ -29,7 +79,7 @@ export default function Homepage() {
 
   async function fetchABC() {
     try {
-      const res = await fetch("/api/abc");
+      const res = await fetch("/.netlify/functions/abc");
       const data = await res.json();
       return data;
     } catch (err) {
@@ -40,7 +90,7 @@ export default function Homepage() {
 
   async function fetchAlJazeera() {
     try {
-      const res = await fetch("/api/aljazeera");
+      const res = await fetch("/.netlify/functions/aljazeera");
       const data = await res.json();
       return data;
     } catch (err) {
@@ -52,7 +102,7 @@ export default function Homepage() {
 
   async function fetchPBS() {
     try {
-      const res = await fetch("/api/pbs");
+      const res = await fetch("/.netlify/functions/pbs");
       const data = await res.json();
       return data;
     } catch (err) {
@@ -87,7 +137,7 @@ export default function Homepage() {
     }
   }
 
-  // Fetch stories from GNews
+ // Fetch stories from GNews
   async function fetchGNewsSection(topic = "world", sourceLabel = "GNews") {
     const key = import.meta.env.VITE_GNEWS_API_KEY;
     const url = `https://gnews.io/api/v4/top-headlines?token=${key}&topic=${topic}&lang=en&country=us&max=10`;
@@ -151,11 +201,10 @@ export default function Homepage() {
     const title = story.title?.toLowerCase() || "";
     const description = story.description?.toLowerCase() || "";
     const link = story.link?.toLowerCase() || "";
-    const sourceName = story.source_name?.toLowerCase() || story.sourceLabel?.toLowerCase() || "";
+    const sourceLabel = story.source_name?.toLowerCase() || story.sourceLabel?.toLowerCase() || "";
   
     const strictKeywords = [
-      "nutrition", "hydration", "routine", "mindfulness", "diet",
-      "yoga", "meditation", "perspective", "opinion", "editorial", "baby photo",
+     "perspective", "opinion", "editorial", "baby photo",
       "column", "investors", "box office", "sale", "celebrity", "agriculture", "books",
       "book club", "true crime", "culture wars",
     ];
@@ -169,7 +218,7 @@ export default function Homepage() {
   
     const excludedSources = [
       "us weekly", "tmz", "eonline", "thecouriertimes", "sports illustrated", "espn", "et online",
-      "buzzfeed", "shape", "goop", "well+good", "mindbodygreen", "parade", "everyday health", "daily press", 
+      "buzzfeed", "parade", "everyday health", "daily press", 
       "Analytics And Insight", "forbes", "daily mail", "dailymail", "alternet", "digitaltrends", "hothardware",
       "zme science", "oc register", "orange county register", "hello magazine", "boston herald",
     ];
@@ -210,7 +259,7 @@ export default function Homepage() {
     );
   
     const isFromFluffSource = excludedSources.some((src) =>
-      sourceName.includes(src) || link.includes(src)
+      sourceLabel.includes(src) || link.includes(src)
     );
   
     const isFromOpinionSection =
@@ -221,10 +270,10 @@ export default function Homepage() {
         title.includes(word) || description.includes(word)
       ) ||
       sportsSources.some((src) =>
-        sourceName.includes(src) || link.includes(src)
+        sourceLabel.includes(src) || link.includes(src)
       );
 
-      const isMediastack = sourceName.includes("mediastack");
+      const isMediastack = sourceLabel.includes("mediastack");
       if (isMediastack) {
         const mediastackFluff = [
           "horse racing", "consensus picks", "powerball numbers", "lotto", "snow white",
@@ -250,26 +299,9 @@ export default function Homepage() {
   
     const isFluff = hitStrict || hitLoose || isFromFluffSource || isFromOpinionSection || isSportsStory; //|| isTooShort || !hasImage;
   
-    if (isFluff) {
-      console.log("🚫 Rejected:", {
-        title: story.title,
-        source: sourceName,
-        hitStrict,
-        hitLoose,
-        isFromFluffSource,
-        isFromOpinionSection,
-        isSportsStory,
-        //isTooShort,
-        //hasImage
-      });
-    }
   
     return !isFluff;
   }
-  
-  
-  
-  
   
   async function fetchMediastackNews(sourceLabel = "Mediastack") {
     const key = import.meta.env.VITE_MEDIASTACK_API_KEY;
@@ -299,7 +331,7 @@ export default function Homepage() {
   }
   
   
-  // Fetch trending stories from Reddit
+ // Fetch trending stories from Reddit
   async function fetchRedditTrending() {
     try {
       const res = await fetch("https://www.reddit.com/r/news/top.json?limit=10");
@@ -323,7 +355,7 @@ export default function Homepage() {
 
   async function fetchNPRTop() {
     try {
-      const res = await fetch("/api/npr");
+      const res = await fetch("/.netlify/functions/npr");
       const data = await res.json();
       return data;
     } catch (err) {
@@ -345,8 +377,8 @@ export default function Homepage() {
   const preferredSources = [
     "associated press",
     "pbs",
-    "abc news",
-    "al jazeera",
+   "abc news",
+   "al jazeera",
     "npr",
     "bbc",
     "reuters",
@@ -414,12 +446,27 @@ export default function Homepage() {
   
   function belongsToHealthScience(story) {
     const title = story.title?.toLowerCase() || "";
-    return title.includes("covid") || title.includes("vaccine") ||
-           title.includes("cdc") || title.includes("health") ||
-           title.includes("virus") || title.includes("outbreak") ||
-           title.includes("study") || title.includes("research") ||
-           title.includes("cancer") || title.includes("medical");
+    const source = story.sourceLabel?.toLowerCase() || "";
+  
+    const healthKeywords = [
+      "covid", "vaccine", "cdc", "health", "virus", "outbreak",
+      "study", "research", "cancer", "medical", "clinical trial",
+      "public health", "infection", "disease", "epidemic", "pandemic"
+    ];
+  
+    const healthSources = [
+      "new scientist",
+      "science daily",
+      "nih",
+      
+    ];
+  
+    const isKeywordMatch = healthKeywords.some(word => title.includes(word));
+    const isFromHealthSource = healthSources.includes(source);
+  
+    return isKeywordMatch || isFromHealthSource;
   }
+  
   
   function belongsToWorld(story) {
     const title = story.title?.toLowerCase() || "";
@@ -432,13 +479,25 @@ export default function Homepage() {
   
   function belongsToBusinessTech(story) {
     const title = story.title?.toLowerCase() || "";
-    return title.includes("tech") || title.includes("ai") ||
-           title.includes("stock") || title.includes("startup") ||
-           title.includes("economy") || title.includes("inflation") ||
-           title.includes("bank") || title.includes("crypto") ||
-           title.includes("layoffs") || title.includes("google") ||
-           title.includes("apple") || title.includes("microsoft");
+    const source = story.sourceLabel?.toLowerCase() || "";
+  
+    const businessKeywords = [
+      "tech", "ai", "stock", "startup", "economy", "inflation",
+      "bank", "crypto", "layoffs", "google", "apple", "microsoft",
+      "investment", "finance", "earnings", "merger", "ipo"
+    ];
+  
+    const businessSources = [
+      "marketwatch", "bloomberg", "cnbc", "business insider", "financial times"
+    ];
+  
+    const keywordMatch = businessKeywords.some((word) => title.includes(word));
+    const sourceMatch = businessSources.some((biz) => source.includes(biz));
+  
+    return keywordMatch || sourceMatch;
   }
+  
+  
   
   function interleaveBySource(stories) {
     const groups = stories.reduce((acc, story) => {
@@ -468,7 +527,10 @@ export default function Homepage() {
   
   // Load all sections
   useEffect(() => {
+    console.log("🚀 useEffect ran!");
+
     async function fetchAllNews() {
+      console.log("🚀 fetchAllNews ran!");
       setLoading(true);
   
       const [
@@ -486,7 +548,11 @@ export default function Homepage() {
         //apTop,
         pbsTop,
         abcTop,
-        aljazeeraTop
+        aljazeeraTop,
+        scienceDaily,
+       // nih,
+        newScientist,
+        marketWatch,
       ] = await Promise.all([
         safeFetch(() => fetchNewsDataSection("politics")),
         safeFetch(() => fetchNewsDataSection("world")),
@@ -502,20 +568,29 @@ export default function Homepage() {
         //safeFetch(fetchAP),
         safeFetch(fetchPBS),
         safeFetch(fetchABC),
-        safeFetch(fetchAlJazeera)
+        safeFetch(fetchAlJazeera),
+        safeFetch(fetchScienceDaily),
+       // safeFetch(fetchNIH),
+        safeFetch(fetchNewScientist),
+        safeFetch(fetchMarketWatch),
       ]);
 
       console.log("✅ Raw sources fetched:", {
         newsdataPolitics,
         newsdataWorld,
+        newsdataWorld,
+        nprTop,
         bbc,
         //apTop,
         pbsTop,
         abcTop,
         aljazeeraTop,
+        scienceDaily,
+        newScientist,
+        marketWatch,
       });
       
-  
+
       // 🧠 Merge all top candidates
       const allTopCandidates = [
         ...newsdataPolitics,
@@ -541,14 +616,20 @@ export default function Homepage() {
       const deduped = dedupedStories(allTopCandidates);
       console.log("🧼 Deduped stories:", deduped);
 
+
+
       //Sort by source preference
       const sortedByPriority = sortBySourcePriority(deduped);
+
+      console.log["sortedByPriority: ", sortedByPriority]
 
   
       // 🧹 Remove soft stories from FEATURED story only
       const hardNews = sortedByPriority.filter(isTrulyHardNews);
       const softNews = sortedByPriority.filter((story) => !isTrulyHardNews(story));      
   
+      console.log("hard news: " + hardNews[0])
+
       // 🗂️ Sort by date
       const sortedHard = hardNews.sort((a, b) =>
         new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0)
@@ -556,6 +637,7 @@ export default function Homepage() {
       const sortedSoft = softNews.sort((a, b) =>
         new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0)
       );
+
 
       const featured = sortedHard[0];
       let side = sortedHard.slice(1, 6);
@@ -571,13 +653,20 @@ export default function Homepage() {
       setSideStories(side);
       setTopStories([featured, ...side]);
 
+
       // ✨ Track used links
       const usedLinks = new Set([
         featured?.link,
         ...side.map((s) => s.link),
       ]);
+      console.log("🔗 Used links so far:", usedLinks);
+
+      const healthCandidates = [...healthScienceNews, ...scienceDaily, ...newScientist /*, other new feeds*/];
 
       function fillSection(label, stories, fallbackPool) {
+        console.log(`🧩 Filling section: ${label}`);
+        console.log(`🔍 Candidate stories:`, stories);
+
         // Deduped by link
         const uniqueStories = stories.filter((s) => !usedLinks.has(s.link)).slice(0, 5);
 
@@ -591,6 +680,8 @@ export default function Homepage() {
           finalStories = [...finalStories, ...fillers];
         }
 
+        console.log("unique stories:", uniqueStories);
+  
         // Update usedLinks
         finalStories.forEach((s) => usedLinks.add(s.link));
 
@@ -614,6 +705,10 @@ export default function Homepage() {
       // 📥 Other stories not in Top 6
       const otherStories = deduped.filter((s) => !usedLinks.has(s.link));
 
+      console.log("🎯 Politics matches:", otherStories.filter(belongsToPolitics));
+      
+      const fallbackHealth = deduped.filter(belongsToHealthScience);
+
       // 🔄 Fill each section with fallback logic
       fillSection(
         "politics",
@@ -621,8 +716,15 @@ export default function Homepage() {
         otherStories
       );
       fillSection("world", interleaveBySource(otherStories.filter(belongsToWorld).filter(isNationalNews)), otherStories);
-      fillSection("businessTech", interleaveBySource(otherStories.filter(belongsToBusinessTech).filter(isNationalNews)), otherStories);
-      fillSection("healthScience", interleaveBySource(otherStories.filter(belongsToHealthScience).filter(isNationalNews)), otherStories);
+      fillSection(
+        "businessTech",
+        interleaveBySource(
+          otherStories.filter(belongsToBusinessTech).filter(isNationalNews)
+        ),
+        otherStories
+      );
+      
+      fillSection("healthScience", (healthCandidates.filter(isNationalNews)), fallbackHealth);
       
       // 🎯 Trending is separate (Reddit only)
       setTrendingNews(reddit.slice(0, 5));
@@ -643,13 +745,16 @@ export default function Homepage() {
      
 
   
-  if (!topStories.length || !topStories[0]) return <p>No stories available right now.</p>;
-  try {
-    if (loading) return <p>Loading the world…</p>;
-    if (!featuredStory) return <p>No featured story yet.</p>;
+  // if (!topStories.length || !topStories[0]) 
+  //   return <p>No stories available right now.</p>;
+  // try {
+  //   if (loading) return <p>Loading the world…</p>;
+  //   if (!featuredStory) return <p>No featured story yet.</p>;
   
 
     return (
+      
+
       <div className="homepage">
     <section className="top-stories">
       <h2>Latest News</h2>
@@ -764,8 +869,4 @@ export default function Homepage() {
 </section>
 </div>
   );
-} catch (err) {
-  console.error("💥 Error rendering Homepage:", err);
-  return <p>Something broke. Try refreshing?</p>;
-  };
 }
