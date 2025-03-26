@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import Homepage from "./pages/homepage/homepage";
+import CategoryPage from "./pages/CategoryPage/CategoryPage";
+import { NewsProvider } from "./context/NewsContext";
 
 export default function App() {
   const apiKey = import.meta.env.VITE_API_KEY;
@@ -9,6 +11,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+    <NewsProvider>
       <Header />
       <main>
       <div>
@@ -17,10 +20,13 @@ export default function App() {
             path="/"
             element={<Homepage apiKey={apiKey} baseUrl={baseUrl} />}
           />
+          <Route path="/category/:categorySlug" element={<CategoryPage />} />
+
         </Routes>
         </div>
       </main>
       <Footer />
+      </NewsProvider>
     </BrowserRouter>
   );
 }

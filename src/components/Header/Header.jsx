@@ -1,21 +1,42 @@
-import React from 'react'
-import './Header.css'
+import React, { useEffect, useRef, useState } from "react";
+import "./Header.css";
+import { categories } from "../../data/categories";
+import { Link } from "react-router-dom";
 
-function Header() {
+export default function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navRef = useRef();
 
-    return (
-      <header className="site-header">
-        <h1 className="site-logo">moodscroll</h1>
-        <nav className="site-nav">
-          <a href="#">Home</a>
-          <a href="#">Latest</a>
-          <a href="#">Politics</a>
-          <a href="#">Health</a>
-          <a href="#">Travel</a>
-          <button className="sign-in-btn">Sign In</button>
-        </nav>
-      </header>
-    )
-  }
-  
-  export default Header
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuOpen && navRef.current && !navRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  return (
+    <header className="site-header">
+      <Link to="/" className="logo">moodscroll</Link>
+
+      <nav ref={navRef} className={menuOpen ? "open" : ""}>
+        {Object.values(categories).map(({ slug, title }) => (
+          <Link key={slug} to={`/category/${slug}`} onClick={() => setMenuOpen(false)}>
+            {title}
+          </Link>
+        ))}
+      </nav>
+
+
+
+      <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+        <span />
+        <span />
+        <span />
+      </div>
+    </header>
+  );
+}

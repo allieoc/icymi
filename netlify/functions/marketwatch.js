@@ -3,7 +3,7 @@ const parser = new Parser();
 
 exports.handler = async function () {
   try {
-    const feed = await parser.parseURL("https://feeds.marketwatch.com/marketwatch/topstories");
+    const feed = await parser.parseURL("https://feeds.content.dowjones.io/public/rss/mw_realtimeheadlines");
 
     const stories = feed.items.slice(0, 10).map((item) => ({
       title: item.title,
