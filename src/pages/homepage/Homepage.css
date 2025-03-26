@@ -162,6 +162,10 @@ body {
   
     /* Responsive for small screens */
     @media (max-width: 900px) {
+      body{
+        margin: 0;
+      }
+
       .top-grid {
         grid-template-columns: 1fr;
       }
@@ -172,18 +176,24 @@ body {
 
       .headline{
         font-size: 20px;
-        padding: 1rem 2rem;
+        padding: .5rem;
+      }
+
+      .section-grid{
+        margin: 1rem;
       }
 
       .section-block .headline:hover{
         text-decoration: underline;
       }
 
+
+
       .section-block h2{
         font-size: 26px;
         text-align: center;
       }
-    
+
       .side-stories {
         flex-direction: row;
         overflow-x: auto;
