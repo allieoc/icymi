@@ -5,6 +5,7 @@ import CategoryPage from "./pages/CategoryPage/CategoryPage";
 import { NewsProvider } from "./context/NewsContext";
 
 
+
 export default function App() {
   const apiKey = import.meta.env.VITE_API_KEY;
   const baseUrl = import.meta.env.VITE_BASE_URL;
