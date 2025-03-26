@@ -3,6 +3,7 @@ import StoryCard from "../../components/StoryCard/StoryCard";
 import './Homepage.css';
 import { useContext } from "react";
 import { NewsContext } from "../../context/NewsContext";
+import defaultImage from "src/assets/featured-story.png";
 
 export default function Homepage() {
   const [featuredStory, setFeaturedStory] = useState(null);
@@ -20,49 +21,13 @@ export default function Homepage() {
   const newsdataKey = import.meta.env.VITE_NEWSDATA_API_KEY;
   const newsdataBase = import.meta.env.VITE_NEWSDATA_BASE_URL;
   
-  async function fetchUnsplashImage(title = "", fallbackQuery = "news") {
-    const cleanedQuery = (title || fallbackQuery)
-      .split(" ")
-      .slice(0, 6)
-      .join(" ");
-  
-    const query = encodeURIComponent(cleanedQuery);
-    const UNSPLASH_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
-    const url = `https://api.unsplash.com/photos/random?query=${query}&orientation=landscape&client_id=${UNSPLASH_KEY}`;
-  
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      return data?.urls?.regular || null;
-    } catch (err) {
-      console.error("🖼️ Unsplash fetch failed:", err);
-      return null;
-    }
-  }
   
   async function getStoryImage(story) {
     if (story.image_url && story.image_url.trim() !== "" && story.image_url !== "null") {
       return story.image_url;
     }
   
-    // Determine category
-    const fallbackQuery = belongsToHealthScience(story)
-      ? "health"
-      : belongsToBusinessTech(story)
-      ? "business"
-      : belongsToWorld(story)
-      ? "world"
-      : belongsToPolitics(story)
-      ? "politics"
-      : "news";
-  
-    const unsplash = await fetchUnsplashImage(story.title, fallbackQuery);
-  
-    if (unsplash) {
-      return unsplash;
-    }
-  
-    return "./src/assets/featured-story.png";
+    return defaultImage;
   }
 
   async function fetchStatNews() {
