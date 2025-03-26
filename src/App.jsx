@@ -3,6 +3,7 @@ import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import CategoryPage from "./pages/CategoryPage/CategoryPage";
 import { NewsProvider } from "./context/NewsContext";
+import Homepage from "./pages/homepage/Homepage";
 
 
 

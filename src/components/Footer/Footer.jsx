@@ -6,7 +6,7 @@ function Footer() {
     <footer className="footer">
   <div className="footer-content">
     <div className="footer-brand">
-      <h3>Moodscroll</h3>
+      <h3>moodscroll</h3>
       <p>A calmer way to catch up on the news, based on your mood.</p>
     </div>
 
