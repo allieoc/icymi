@@ -336,7 +336,7 @@ export default function Homepage() {
     const strictKeywords = [
      "perspective", "opinion", "editorial", "baby photo",
       "column", "investors", "box office", "sale", "celebrity", "agriculture", "books",
-      "book club", "true crime", "culture wars",
+      "book club", "true crime", "culture wars", "watch",
     ];
   
     const looseKeywords = [
