@@ -3,7 +3,7 @@ import StoryCard from "../../components/StoryCard/StoryCard";
 import './Homepage.css';
 import { useContext } from "react";
 import { NewsContext } from "../../context/NewsContext";
-import defaultImage from "src/assets/featured-story.png";
+import defaultImage from "../../assets/featured-story.png";
 
 export default function Homepage() {
   const [featuredStory, setFeaturedStory] = useState(null);
