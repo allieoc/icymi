@@ -3,8 +3,6 @@ import StoryCard from "../../components/StoryCard/StoryCard";
 import './Homepage.css'
 
 export default function Homepage() {
-  console.log("homepage is rendering");
-  const [topStories, setTopStories] = useState([]);
   const [featuredStory, setFeaturedStory] = useState(null);
   const [sideStories, setSideStories] = useState([]);  
   const [politicsNews, setPoliticsNews] = useState([]);
@@ -16,6 +14,53 @@ export default function Homepage() {
 
   const newsdataKey = import.meta.env.VITE_NEWSDATA_API_KEY;
   const newsdataBase = import.meta.env.VITE_NEWSDATA_BASE_URL;
+  
+  async function fetchUnsplashImage(title = "", fallbackQuery = "news") {
+    const cleanedQuery = (title || fallbackQuery)
+      .split(" ")
+      .slice(0, 6)
+      .join(" ");
+  
+    const query = encodeURIComponent(cleanedQuery);
+    const UNSPLASH_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
+    const url = `https://api.unsplash.com/photos/random?query=${query}&orientation=landscape&client_id=${UNSPLASH_KEY}`;
+  
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      return data?.urls?.regular || null;
+    } catch (err) {
+      console.error("🖼️ Unsplash fetch failed:", err);
+      return null;
+    }
+  }
+  
+  async function getStoryImage(story) {
+    if (story.image_url && story.image_url.trim() !== "" && story.image_url !== "null") {
+      return story.image_url;
+    }
+  
+    // Determine category
+    const fallbackQuery = belongsToHealthScience(story)
+      ? "health"
+      : belongsToBusinessTech(story)
+      ? "business"
+      : belongsToWorld(story)
+      ? "world"
+      : belongsToPolitics(story)
+      ? "politics"
+      : "news";
+  
+    const unsplash = await fetchUnsplashImage(story.title, fallbackQuery);
+  
+    if (unsplash) {
+      console.log(`🖼️ Using Unsplash image for "${story.title}":`, unsplash);
+      return unsplash;
+    }
+  
+    return "./src/assets/featured-story.png";
+  }
+  
 
   async function fetchMarketWatch() {
     try {
@@ -29,16 +74,16 @@ export default function Homepage() {
   }
   
   
-  async function fetchNIH() {
-    try {
-      const res = await fetch("/.netlify/functions/nih");
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      console.error("❌ Failed to fetch NIH feed:", err);
-      return [];
-    }
-  }
+  // async function fetchNIH() {
+  //   try {
+  //     const res = await fetch("/.netlify/functions/nih");
+  //     const data = await res.json();
+  //     return data;
+  //   } catch (err) {
+  //     console.error("❌ Failed to fetch NIH feed:", err);
+  //     return [];
+  //   }
+  // }
   
   async function fetchNewScientist() {
     try {
@@ -110,6 +155,18 @@ export default function Homepage() {
       return [];
     }
   }  
+
+
+  async function fetchNPRTop() {
+    try {
+      const res = await fetch("/.netlify/functions/npr");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch NPR feed:", err);
+      return [];
+    }
+  }
 
   async function fetchGuardianSection(guardianSection, sourceLabel = "The Guardian") {
     const key = import.meta.env.VITE_GUARDIAN_API_KEY;
@@ -196,6 +253,56 @@ export default function Homepage() {
     }
   }
   
+  async function fetchMediastackNews(sourceLabel = "Mediastack") {
+    const key = import.meta.env.VITE_MEDIASTACK_API_KEY;
+    const url = `http://api.mediastack.com/v1/news?access_key=${key}&countries=us&languages=en&limit=10&sort=published_desc`;
+  
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+  
+      if (!Array.isArray(data.data)) {
+        console.warn("⚠️ Unexpected Mediastack response:", data);
+        return [];
+      }
+  
+      return data.data.map((story) => ({
+        title: story.title,
+        description: story.description,
+        link: story.url,
+        image_url: story.image,
+        sourceLabel,
+        pubDate: story.published_at,
+      }));
+    } catch (err) {
+      console.error("❌ Error fetching Mediastack news:", err);
+      return [];
+    }
+  }
+  
+  
+ // Fetch trending stories from Reddit
+  async function fetchRedditTrending() {
+    try {
+      const res = await fetch("https://www.reddit.com/r/news/top.json?limit=10");
+      const data = await res.json();
+
+      return data.data.children.map((post) => ({
+        title: post.data.title,
+        description: "",
+        link: `https://reddit.com${post.data.permalink}`,
+        image_url: post.data.thumbnail?.startsWith("http")
+          ? post.data.thumbnail
+          : null,
+        sourceLabel: "Reddit",
+        pubDate: new Date(post.data.created_utc * 1000).toISOString(),
+      }));
+    } catch (err) {
+      console.error("❌ Error fetching Reddit:", err);
+      return [];
+    }
+  }
+
   
   function isNationalNews(story) {
     const title = story.title?.toLowerCase() || "";
@@ -301,67 +408,6 @@ export default function Homepage() {
   
   
     return !isFluff;
-  }
-  
-  async function fetchMediastackNews(sourceLabel = "Mediastack") {
-    const key = import.meta.env.VITE_MEDIASTACK_API_KEY;
-    const url = `http://api.mediastack.com/v1/news?access_key=${key}&countries=us&languages=en&limit=10&sort=published_desc`;
-  
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-  
-      if (!Array.isArray(data.data)) {
-        console.warn("⚠️ Unexpected Mediastack response:", data);
-        return [];
-      }
-  
-      return data.data.map((story) => ({
-        title: story.title,
-        description: story.description,
-        link: story.url,
-        image_url: story.image,
-        sourceLabel,
-        pubDate: story.published_at,
-      }));
-    } catch (err) {
-      console.error("❌ Error fetching Mediastack news:", err);
-      return [];
-    }
-  }
-  
-  
- // Fetch trending stories from Reddit
-  async function fetchRedditTrending() {
-    try {
-      const res = await fetch("https://www.reddit.com/r/news/top.json?limit=10");
-      const data = await res.json();
-
-      return data.data.children.map((post) => ({
-        title: post.data.title,
-        description: "",
-        link: `https://reddit.com${post.data.permalink}`,
-        image_url: post.data.thumbnail?.startsWith("http")
-          ? post.data.thumbnail
-          : null,
-        sourceLabel: "Reddit",
-        pubDate: new Date(post.data.created_utc * 1000).toISOString(),
-      }));
-    } catch (err) {
-      console.error("❌ Error fetching Reddit:", err);
-      return [];
-    }
-  }
-
-  async function fetchNPRTop() {
-    try {
-      const res = await fetch("/.netlify/functions/npr");
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      console.error("❌ Failed to fetch NPR feed:", err);
-      return [];
-    }
   }
   
 
@@ -642,6 +688,24 @@ export default function Homepage() {
       const featured = sortedHard[0];
       let side = sortedHard.slice(1, 6);
 
+      const top6 = [featured, ...side];
+
+      console.log("📸 Getting story image...");
+
+
+      // 🔁 Enhance image fallback
+      const topWithImages = await Promise.all(
+        top6.map(async (story) => ({
+          ...story,
+          image_url: await getStoryImage(story),
+        }))
+      );
+
+      // 🧠 Final split
+      const enhancedFeatured = topWithImages[0];
+      const enhancedSide = topWithImages.slice(1);
+
+
       // 💬 Backfill with soft stories if needed
       if (side.length < 5) {
         const fillCount = 5 - side.length;
@@ -649,9 +713,8 @@ export default function Homepage() {
       }
 
       // Set top stories
-      setFeaturedStory(featured);
-      setSideStories(side);
-      setTopStories([featured, ...side]);
+      setFeaturedStory(enhancedFeatured);
+      setSideStories(enhancedSide);      
 
 
       // ✨ Track used links
@@ -773,8 +836,10 @@ export default function Homepage() {
 
         <div className="side-stories">
           {sideStories.map((story, index) => (
-            <StoryCard key={`${story.link}-${index}`} story={story} isCompact={true} />
+            <StoryCard key={`${story.link}-${index}`} story={story} isCompact={true} hideImage={true} />
           ))}
+          
+
         </div>
       </div>
     </section>

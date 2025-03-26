@@ -5,7 +5,7 @@ function Header() {
 
     return (
       <header className="site-header">
-        <h1 className="site-logo">ICYMI</h1>
+        <h1 className="site-logo">moodscroll</h1>
         <nav className="site-nav">
           <a href="#">Home</a>
           <a href="#">Latest</a>
