@@ -27,5 +27,11 @@ export const categories = {
       imageFallback: "src/assets/world-banner.jpg",
       description: "Global headlines and international affairs.",
     },
+
+    trending: {
+        slug: "trending",
+        title: "Trending",
+        stateKey: "trendingNews",
+    }
   };
   

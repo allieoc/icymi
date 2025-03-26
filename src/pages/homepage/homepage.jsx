@@ -745,14 +745,14 @@ export default function Homepage() {
       function fillSection(label, stories, fallbackPool) {
 
         // Deduped by link
-        const uniqueStories = stories.filter((s) => !usedLinks.has(s.link)).slice(0, 5);
+        const uniqueStories = stories.filter((s) => !usedLinks.has(s.link)).slice(0, 15);
 
         // If less than 5, backfill from general pool
         let finalStories = [...uniqueStories];
         if (finalStories.length < 5) {
           const fillers = fallbackPool.filter(
             (s) => !usedLinks.has(s.link) && !uniqueStories.includes(s)
-          ).slice(0, 5 - finalStories.length);
+          ).slice(0, 15 - finalStories.length);
 
           finalStories = [...finalStories, ...fillers];
 
@@ -805,7 +805,7 @@ export default function Homepage() {
       fillSection("healthScience", (healthCandidates.filter(isNationalNews)), fallbackHealth);
       
       // 🎯 Trending is separate (Reddit only)
-      setTrendingNews(reddit.slice(0, 5));
+      setTrendingNews(reddit.slice(0, 15));
 
   
     
@@ -850,6 +850,15 @@ export default function Homepage() {
     }
   }, [worldNews]);
 
+  useEffect(() => {
+    if (trendingNews.length > 0) {
+      setNewsState((prev) => ({
+        ...prev,
+        trending: trendingNews,
+      }));
+    }
+  }, [trendingNews]);
+
     return (
       
 
@@ -882,7 +891,7 @@ export default function Homepage() {
   {/* Politics */}
   <div className="section-block politics">
     <h2>Politics</h2>
-    {politicsNews.map((story, index) => (
+    {politicsNews.slice(0, 5).map((story, index) => (
       <a
         key={`${story.link}-${index}`}
         href={story.link}
@@ -899,7 +908,7 @@ export default function Homepage() {
   {/* Health & Science */}
   <div className="section-block health">
     <h2>Health & Science</h2>
-    {healthScienceNews.map((story, index) => (
+    {healthScienceNews.slice(0, 5).map((story, index) => (
       <a
         key={`${story.link}-${index}`}
         href={story.link}
@@ -916,7 +925,7 @@ export default function Homepage() {
   {/* World News */}
   <div className="section-block world">
     <h2>World News</h2>
-    {worldNews.map((story, index) => (
+    {worldNews.slice(0, 5).map((story, index) => (
       <a
         key={`${story.link}-${index}`}
         href={story.link}
@@ -933,7 +942,7 @@ export default function Homepage() {
   {/* Business & Tech */}
   <div className="section-block tech">
     <h2>Business & Tech</h2>
-    {businessTechNews.map((story, index) => (
+    {businessTechNews.slice(0, 5).map((story, index) => (
       <a
         key={`${story.link}-${index}`}
         href={story.link}
@@ -950,7 +959,7 @@ export default function Homepage() {
   {/* Trending on Reddit */}
   <div className="section-block trending">
     <h2>Trending on Reddit</h2>
-    {trendingNews.map((story, index) => (
+    {trendingNews.slice(0,5).map((story, index) => (
       <a
         key={`${story.link}-${index}`}
         href={story.link}

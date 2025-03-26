@@ -9,6 +9,35 @@ export default function CategoryPage() {
 
   const stories = newsState[categorySlug] || [];
 
+  function timeAgo(dateString) {
+    const now = new Date();
+    const then = new Date(dateString);
+    const seconds = Math.floor((now - then) / 1000);
+  
+    const dayInSeconds = 86400;
+  
+    if (seconds > dayInSeconds) {
+      return then.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      }); // e.g. Mar 25
+    }
+  
+    const intervals = [
+      { label: "hour", seconds: 3600 },
+      { label: "minute", seconds: 60 },
+    ];
+  
+    for (const interval of intervals) {
+      const count = Math.floor(seconds / interval.seconds);
+      if (count >= 1) {
+        return `${count} ${interval.label}${count > 1 ? "s" : ""} ago`;
+      }
+    }
+  
+    return "just now";
+  }
+
   return (
     <div className="category-page">
         <div className="category-hero">
@@ -29,7 +58,10 @@ export default function CategoryPage() {
             >
                 <div className="category-story">
                     <p className="headline">{story.title}</p>
+                    <div className="story-data">
                     <span className="source">{story.sourceLabel}</span>
+                    <span className="time-stamp">{story.pubDate && ` • ${timeAgo(story.pubDate)}`}</span>
+                    </div>
                 </div>
                 
             </a>

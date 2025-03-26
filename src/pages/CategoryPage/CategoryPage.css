@@ -1,6 +1,5 @@
 .category-page {
     padding: 1rem;
-    height: 100vh;
   }
   
   .category-hero {
@@ -37,7 +36,7 @@
   }
 
   
-  .category-content .source {
+  .story-data{
     background: #f0f0f0;
     color: #333;
     padding: 2px 8px;

@@ -22,13 +22,14 @@ export default function Header() {
     <header className="site-header">
       <Link to="/" className="logo">moodscroll</Link>
 
-      <nav ref={navRef} className={menuOpen ? "open" : ""}>
-        {Object.values(categories).map(({ slug, title }) => (
-          <Link key={slug} to={`/category/${slug}`} onClick={() => setMenuOpen(false)}>
-            {title}
-          </Link>
-        ))}
-      </nav>
+        <nav ref={navRef} className={menuOpen ? "open" : ""}>
+          {Object.values(categories).map(({ slug, title }) => (
+            <Link key={slug} to={`/category/${slug}`} onClick={() => setMenuOpen(false)} className="nav-link">
+              {title}
+            </Link>
+          ))}
+
+        </nav>
 
 
 

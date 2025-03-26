@@ -1,6 +1,6 @@
 /* Fonts */
 body {
-    font-family: 'Questrial', sans-serif;
+    font-family: 'Lato', sans-serif;
     margin: 0;
     padding: 0;
     background-color: #fff;
@@ -16,6 +16,7 @@ body {
     text-decoration: none;
     color: inherit;
   }
+
   
   /* Top Stories Layout */
   .top-stories {
