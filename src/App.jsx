@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import Homepage from "./pages/homepage/homepage";
+import Homepage from "./pages/homepage/Homepage";
 import CategoryPage from "./pages/CategoryPage/CategoryPage";
 import { NewsProvider } from "./context/NewsContext";
 
