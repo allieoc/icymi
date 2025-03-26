@@ -4,12 +4,13 @@ body {
     margin: 0;
     padding: 0;
     background-color: #fff;
-    color: #111;
+    color: #211f46;
   }
   
   h1, h2, h3, h4 {
     font-family: 'Libre Franklin', sans-serif;
     margin: 0;
+    color: #211f46;
   }
   
   a {
@@ -125,6 +126,8 @@ body {
     font-size: 0.85rem;
     color: #444;
   }
+
+ 
   
   /* Section-specific colors */
   .politics {
@@ -166,36 +169,48 @@ body {
       .featured-story {
         order: -1; /* show featured first on mobile */
       }
-    
-      @media (max-width: 900px) {
-        .side-stories {
-          flex-direction: row;
-          overflow-x: auto;
-          scroll-snap-type: x mandatory;
-          -webkit-overflow-scrolling: touch;
-          gap: 1rem;
-          padding-bottom: 1rem;
-          margin-left: -1rem;
-          margin-right: -1rem;
-          padding-left: 1rem;
-        }
-      
-        .side-stories > * {
-          flex: 0 0 85%;
-          scroll-snap-align: start;
-          background: #fff;
-          border-radius: 12px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-          padding: 1rem;
-        }
 
-        .section-grid {
-          grid-template-columns: 1fr;
-        }
-      
-        .section-block.trending {
-          margin-top: 2rem;
-          grid-column: 1 / -1; /* Make sure it spans full width */
-        }
+      .headline{
+        font-size: 20px;
+        padding: 1rem 2rem;
+      }
+
+      .section-block .headline:hover{
+        text-decoration: underline;
+      }
+
+      .section-block h2{
+        font-size: 26px;
+        text-align: center;
+      }
+    
+      .side-stories {
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        margin-left: -1rem;
+        margin-right: -1rem;
+        padding-left: 1rem;
+      }
+    
+      .side-stories > * {
+        flex: 0 0 85%;
+        scroll-snap-align: start;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        padding: 1rem;
+      }
+
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+    
+      .section-block.trending {
+        margin-top: 2rem;
+        grid-column: 1 / -1; /* Make sure it spans full width */
+      }
     }
-  }
