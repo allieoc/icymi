@@ -1,7 +1,13 @@
 [build]
   functions = "netlify/functions"
   publish = "dist"
-
+  
+[dev]
+  command = "vite"
+  targetPort = 5173
+  framework = "vite"
+  autoLaunch = true
+  
 [[redirects]]
   from = "/api/npr"
   to = "/.netlify/functions/npr"

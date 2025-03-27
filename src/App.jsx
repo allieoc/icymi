@@ -1,33 +1,35 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import CategoryPage from "./pages/CategoryPage/CategoryPage";
-import { NewsProvider } from "./context/NewsContext";
 import Homepage from "./pages/homepage/Homepage";
+import CategoryPage from "./pages/CategoryPage/CategoryPage";
+import MoodSelector from "./pages/MoodSelector/MoodSelector";
+import { NewsProvider } from "./context/NewsContext";
 
-
-
-export default function App() {
-  const apiKey = import.meta.env.VITE_API_KEY;
-  const baseUrl = import.meta.env.VITE_BASE_URL;
+function Layout({ children }) {
+  const location = useLocation();
+  const isLanding = location.pathname === "/";
 
   return (
-    <BrowserRouter>
-    <NewsProvider>
-      <Header />
-      <main>
-      <div>
-        <Routes>
-          <Route
-            path="/"
-            element={<Homepage apiKey={apiKey} baseUrl={baseUrl} />}
-          />
-          <Route path="/category/:categorySlug" element={<CategoryPage />} />
+    <>
+      {!isLanding && <Header />}
+      <main>{children}</main>
+      {!isLanding && <Footer />}
+    </>
+  );
+}
 
-        </Routes>
-        </div>
-      </main>
-      <Footer />
+export default function App() {
+  return (
+    <BrowserRouter>
+      <NewsProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<MoodSelector />} />
+            <Route path="/news" element={<Homepage />} />
+            <Route path="/category/:categorySlug" element={<CategoryPage />} />
+          </Routes>
+        </Layout>
       </NewsProvider>
     </BrowserRouter>
   );
