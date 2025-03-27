@@ -5,7 +5,7 @@ import { ChevronUpDownIcon, CheckIcon } from "@heroicons/react/20/solid";
 const moods = [
   { name: "Focused" },
   { name: "Mellow" },
-  { name: "Tuned In" },
+  { name: "Ready to Listen" },
 ];
 
 export default function MoodDropdown({ selectedMood, setSelectedMood }) {
@@ -13,8 +13,8 @@ export default function MoodDropdown({ selectedMood, setSelectedMood }) {
     <div className="w-full max-w-md mx-auto">
       <Listbox value={selectedMood} onChange={setSelectedMood}>
         <div className="relative mt-3">
-          <Listbox.Button className="relative w-full cursor-pointer rounded-xl bg-white py-3 pl-4 pr-10 text-left text-lg shadow-md ring-2 ring-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <span className="block truncate">{selectedMood.name}</span>
+        <Listbox.Button className="relative w-full cursor-pointer rounded-xl bg-white py-3 pl-4 pr-10 text-left text-lg shadow-md ring-2 ring-indigo-400 hover:bg-indigo-50 hover:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+            <span className="block truncate">{selectedMood?.name || "Choose your own adventure"}</span>
             <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
               <ChevronUpDownIcon className="h-5 w-5 text-indigo-500" aria-hidden="true" />
             </span>
@@ -27,6 +27,7 @@ export default function MoodDropdown({ selectedMood, setSelectedMood }) {
                 className={({ active }) =>
                   `relative cursor-pointer select-none px-4 py-2 transition-all duration-150 rounded-lg ${
                     active ? "bg-indigo-100 text-indigo-800" : "text-gray-900"
+
                   }`
                 }
               >
