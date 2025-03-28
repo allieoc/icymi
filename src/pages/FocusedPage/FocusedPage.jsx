@@ -827,7 +827,7 @@ export default function FocusedPage() {
     return (
       
 
-      <div className="homepage">
+      <div className="focused-page">
       <section className="top-stories">
       <h2>Latest News</h2>
       <div className="top-grid">

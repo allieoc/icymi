@@ -1,13 +1,4 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Questrial', sans-serif;
-    background: linear-gradient(270deg, #cce0f5, #e6f0fa, #cce0f5);
-    background-size: 600% 600%;
-    animation: mellowGradient 8s ease infinite;
-  }
-
-  h1, h2, h3 {
+ .mellow-page h1, h2, h3 {
     font-family: 'Nunito', cursive;
   }
   
@@ -18,6 +9,11 @@ body {
   }
   
   .mellow-page {
+    margin: 0;
+    font-family: 'Questrial', sans-serif;
+    background: linear-gradient(270deg, #cce0f5, #e6f0fa, #cce0f5);
+    background-size: 600% 600%;
+    animation: mellowGradient 8s ease infinite;
     min-height: 100vh;
     padding: 3rem 3rem;
     display: flex;
