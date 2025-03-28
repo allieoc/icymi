@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import Homepage from "./pages/homepage/Homepage";
 import CategoryPage from "./pages/CategoryPage/CategoryPage";
 import MoodSelector from "./pages/MoodSelector/MoodSelector";
 import { NewsProvider } from "./context/NewsContext";
+import FocusedPage from "./pages/FocusedPage/FocusedPage";
+import MellowPage from "./pages/MellowPage/MellowPage";
+import ListenPage from "./pages/ListenPage/ListenPage";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -26,8 +28,10 @@ export default function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<MoodSelector />} />
-            <Route path="/news" element={<Homepage />} />
             <Route path="/category/:categorySlug" element={<CategoryPage />} />
+            <Route path="/focused" element={<FocusedPage />} />
+            <Route path="/mellow" element={<MellowPage />} />
+            <Route path="/ready-to-listen" element={<ListenPage />} />
           </Routes>
         </Layout>
       </NewsProvider>

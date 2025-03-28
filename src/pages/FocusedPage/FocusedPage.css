@@ -65,7 +65,8 @@ body {
     border-bottom: 1px solid #ddd;
     padding-bottom: 0.75rem;
     transition: background 0.2s ease;
-    background-color:#e0efe8;
+    
+
   }
   
   .side-stories a:hover {
@@ -164,6 +165,10 @@ body {
   
     /* Responsive for small screens */
     @media (max-width: 900px) {
+      .side-stories a {
+        background-color:#e0efe8;
+      }
+      
       .top-stories{
         margin: 1rem;
       }

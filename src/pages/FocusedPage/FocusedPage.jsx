@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import StoryCard from "../../components/StoryCard/StoryCard";
-import './Homepage.css';
+import './FocusedPage.css';
 import { useContext } from "react";
 import { NewsContext } from "../../context/NewsContext";
 import defaultImage from "../../assets/featured-story.png";
 
-export default function Homepage() {
+export default function FocusedPage() {
   const [featuredStory, setFeaturedStory] = useState(null);
   const [sideStories, setSideStories] = useState([]);  
   const [politicsNews, setPoliticsNews] = useState([]);

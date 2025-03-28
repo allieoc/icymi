@@ -14,7 +14,9 @@ export default function MoodDropdown({ selectedMood, setSelectedMood }) {
       <Listbox value={selectedMood} onChange={setSelectedMood}>
         <div className="relative mt-3">
         <Listbox.Button className="relative w-full cursor-pointer rounded-xl bg-white py-3 pl-4 pr-10 text-left text-lg shadow-md ring-2 ring-indigo-400 hover:bg-indigo-50 hover:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
-            <span className="block truncate">{selectedMood?.name || "Choose your own adventure"}</span>
+        <span className="block truncate">
+            {selectedMood ? selectedMood.name : "Choose your own adventure"}
+        </span>
             <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
               <ChevronUpDownIcon className="h-5 w-5 text-indigo-500" aria-hidden="true" />
             </span>
