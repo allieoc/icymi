@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "./ListenPage.css";
 import { useRef } from "react";
+import { usePlayer } from "../../context/PlayerContext";
+import {formatTime} from "../../utils/formatTime";
 
 export default function ListenPage() {
   const [podcastStories, setPodcastStories] = useState([]);
   const [videoStories, setVideoStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const carouselRef = useRef(null);
+  const { duration, currentTime, playTrack, track, isPlaying, handleScrub } = usePlayer();
+
 
   function scrollCarousel(direction) {
     if (!carouselRef.current) return;
@@ -120,17 +124,35 @@ export default function ListenPage() {
           {/* Podcast grid */}
           <div className="podcast-grid">
             {podcastStories.map((story, i) => (
-              <a
-                key={`${story.link}-${i}`}
-                href={story.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="podcast-card"
+              <div
+              key={`${story.link}-${i}`}
+              className="podcast-card cursor-pointer"
+              onClick={() =>
+                playTrack({
+                  title: story.title,
+                  channel: story.sourceLabel,
+                  audioUrl: story.audioUrl,
+                })
+              }
+            >
+              {story.image_url && <img src={story.image_url} alt={story.title} />}
+              <h2>{story.title}</h2>
+              {story.sourceLabel && <p className="source-label">{story.sourceLabel}</p>}
+  
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevents the parent div click from firing again
+                  playTrack({
+                    title: story.title,
+                    channel: story.sourceLabel,
+                    audioUrl: story.audioUrl,
+                  });
+                }}
               >
-                {story.image_url && <img src={story.image_url} alt={story.title} />}
-                <h2>{story.title}</h2>
-                {story.sourceLabel && <p className="source-label">{story.sourceLabel}</p>}
-              </a>
+                ▶️ Listen
+              </button>
+            </div>
+            
             ))}
           </div>
         </>

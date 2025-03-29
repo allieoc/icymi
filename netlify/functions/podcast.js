@@ -49,7 +49,7 @@ exports.handler = async function(event) {
     const feed = await parser.parseURL(feedConfig.url);
     const fallbackImage = feed.image?.url || "";
 
-    const stories = feed.items.map((item) => {
+    const stories = feed.items.slice(0, 20).map((item) => {
       let image_url =
         item.itunes?.image ||
         item["media:content"]?.url ||
@@ -58,12 +58,16 @@ exports.handler = async function(event) {
       return {
         title: item.title,
         description: item.contentSnippet || "",
-        link: item.link,
+        audioUrl: item.enclosure?.url || null,
+        link: item.link || item.enclosure?.url || null, // fallback for player or "Listen" button
         image_url,
         pubDate: item.pubDate,
         sourceLabel: feedConfig.label
       };
     });
+
+    console.log("Example Pivot item:", feed.items[0]);
+
 
     return {
       statusCode: 200,

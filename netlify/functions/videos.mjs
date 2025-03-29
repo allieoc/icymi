@@ -36,8 +36,6 @@ export default async function handler(req) {
 
       const videoItems = playlistData.items || [];
 
-      console.log("Videos found:", videoItems)
-
       const videoIds = videoItems
         .map((item) => item.snippet?.resourceId?.videoId)
         .filter(Boolean);
@@ -77,9 +75,7 @@ export default async function handler(req) {
           publishedAt: item.snippet.publishedAt,
           url: `https://www.youtube.com/watch?v=${item.id}`,
         }));
-        
-
-      console.log(`✅ Pulled ${videos.length} videos from ${channel.name}`);
+      
       allVideos.push(...videos);
     }
 
