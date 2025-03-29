@@ -8,7 +8,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef();
   const location = useLocation();
-  const hideEverythingButLogo = location.pathname === "/mellow";
+  const hideEverythingButLogo = location.pathname === "/mellow" || "/ready-to-listen";
 
   useEffect(() => {
     function handleClickOutside(e) {
