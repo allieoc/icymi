@@ -1,13 +1,13 @@
 
 
-const API_KEY = "AIzaSyCCftkm8K7ONkvKIyCmU3cdCazBG3iw7fY";
+const API_KEY = process.env.YT_API_KEY;
 
 
 const CHANNELS = [
-  { name: "Vox", id: "UCLXo7UDZvByw2ixzpQCufnA" },
-  { name: "Vice News", id: "UCn8zNIfYAQNdrFRrr8oibKw" },
-  { name: "Diary of a CEO", id: "UCGq-a57w-aPwyi3pW7XLiHw" },
-  { name: "The Mel Robbins Podcast", id: "UCk2U-Oqn7RXf-ydPqfSxG5g" },
+  {name: "Vox", id: "UCLXo7UDZvByw2ixzpQCufnA" },
+  {name: "Vice News", id: "UCn8zNIfYAQNdrFRrr8oibKw"},
+  {name: "Diary of a CEO", id: "UCGq-a57w-aPwyi3pW7XLiHw"},
+  {name: "The Mel Robbins Podcast", id: "UCk2U-Oqn7RXf-ydPqfSxG5g"},
   {name:"The Ezra Klein Show", id: "UCnxuOd8obvLLtf5_-YKFbiQ"},
   {name:"The Associated Press", id: "UC52X5wxOL_s5yw0dQk7NtgA"},
   {name:"PBS Newshour", id: "UC6ZFN9Tx6xh-skXCuRHCDpQ"}
@@ -35,6 +35,8 @@ export default async function handler(req) {
       const playlistData = await playlistRes.json();
 
       const videoItems = playlistData.items || [];
+
+      console.log("Videos found:", videoItems)
 
       const videoIds = videoItems
         .map((item) => item.snippet?.resourceId?.videoId)

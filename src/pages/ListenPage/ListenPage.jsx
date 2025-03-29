@@ -38,6 +38,7 @@ export default function ListenPage() {
     try {
       const res = await fetch("/.netlify/functions/videos");
       const data = await res.json();
+      console.log("Video Data Fetched:", data);
       return data;
     } catch (err) {
       console.error("❌ Failed to fetch videos", err);
