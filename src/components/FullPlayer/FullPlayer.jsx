@@ -27,8 +27,8 @@ export default function FullPlayer() {
   const imageToUse =
     image_url || // episode-level image from podcast.js
     channelImage || // fallback from feed
-    "../../src/assets/pod-placeholder.png";
-
+    placeholderImg;
+    
   return (
     <AnimatePresence>
   <motion.div
@@ -61,7 +61,7 @@ export default function FullPlayer() {
         alt={title}
         onError={(e) => {
           e.target.onerror = null;
-          placeholderImg;
+          e.target.src = placeholderImg;
         }}
         className="w-full max-w-[350px] aspect-square object-cover rounded-xl shadow-md bg-zinc-800"
       />
