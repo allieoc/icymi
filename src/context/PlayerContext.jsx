@@ -10,6 +10,16 @@ export const PlayerProvider = ({ children }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef(new Audio());
   const [duration, setDuration] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const expandPlayer = () => setIsExpanded(true);
+  const minimizePlayer = () => setIsExpanded(false);
+
+  const seekTo = (time) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+    }
+  };
+
 
   const playTrack = (newTrack) => {
     if (track?.audioUrl !== newTrack.audioUrl) {
@@ -70,6 +80,10 @@ export const PlayerProvider = ({ children }) => {
         togglePlay,
         skipForward,
         skipBackward,
+        seekTo,
+        isExpanded,
+        expandPlayer,
+        minimizePlayer
       }}
     >
       {children}

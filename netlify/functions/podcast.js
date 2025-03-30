@@ -18,11 +18,6 @@ const feeds = [
     name: "upfirst"
   },
   {
-    url: "https://feeds.megaphone.fm/morningbrewdaily",
-    label: "Morning Brew Daily",
-    name: "morningbrewdaily"
-  },
-  {
     url: "https://feeds.megaphone.fm/pivot",
     label: "Pivot",
     name: "pivot"
@@ -65,9 +60,6 @@ exports.handler = async function(event) {
         sourceLabel: feedConfig.label
       };
     });
-
-    console.log("Example Pivot item:", feed.items[0]);
-
 
     return {
       statusCode: 200,

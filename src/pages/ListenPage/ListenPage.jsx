@@ -42,7 +42,6 @@ export default function ListenPage() {
     try {
       const res = await fetch("/.netlify/functions/videos");
       const data = await res.json();
-      console.log("Video Data Fetched:", data);
       return data;
     } catch (err) {
       console.error("❌ Failed to fetch videos", err);
@@ -53,22 +52,20 @@ export default function ListenPage() {
   useEffect(() => {
     setLoading(true);
     async function loadContent() {
-      const [npr, theDaily, upFirst, morningBrewDaily, pivot, todayExplained] = await Promise.all([
+      const [npr, theDaily, upFirst, pivot, todayExplained] = await Promise.all([
         fetchFeed("nprnewsnow"),
         fetchFeed("thedaily"),
         fetchFeed("upfirst"),
-        fetchFeed("morningbrewdaily"),
         fetchFeed("pivot"),
         fetchFeed("todayexplained")
       ]);
 
-      const podcasts = [...npr, ...theDaily, ...upFirst, ...morningBrewDaily, ...pivot, ...todayExplained];
+      const podcasts = [...npr, ...theDaily, ...upFirst, ...pivot, ...todayExplained];
       const sorted = podcasts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
       setPodcastStories(sorted);
 
       const videos = await fetchVideos();
       setVideoStories(videos);
-      console.log("🎬 Videos loaded:", videos);
 
 
       setLoading(false);
@@ -82,7 +79,7 @@ export default function ListenPage() {
       <h1>Press Play 🎧</h1>
 
       {loading ? (
-        <p className="loading-text">Loading audio stories...</p>
+        <p className="loading-text">Headphones in, volume up...</p>
       ) : (
         <>
           {/* Video carousel */}

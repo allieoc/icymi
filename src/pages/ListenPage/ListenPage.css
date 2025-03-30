@@ -1,6 +1,6 @@
 /* Gradient Background */
 .tunedin-page {
-    background: linear-gradient(135deg, #211f46, #3b387f, rgb(117, 128, 182));
+    background: linear-gradient(135deg, #211f46, #3b387f, #747fb5);
     background-size: 100% 100%;
     animation: gradientShift 5s ease infinite;
     min-height: 100vh;

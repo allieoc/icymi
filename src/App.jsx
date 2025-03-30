@@ -9,6 +9,7 @@ import MellowPage from "./pages/MellowPage/MellowPage";
 import ListenPage from "./pages/ListenPage/ListenPage";
 import { PlayerProvider } from './context/PlayerContext';
 import NowPlayingBar from "./components/NowPlayingBar/NowPlayingBar";
+import FullPlayer from "./components/FullPlayer/FullPlayer";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -28,6 +29,7 @@ export default function App() {
     <BrowserRouter>
       <NewsProvider>
       <PlayerProvider>
+
         <Layout>
           <Routes>
             <Route path="/" element={<MoodSelector />} />
@@ -36,8 +38,9 @@ export default function App() {
             <Route path="/mellow" element={<MellowPage />} />
             <Route path="/ready-to-listen" element={<ListenPage />} />
           </Routes>
-          <NowPlayingBar />
         </Layout>
+        <NowPlayingBar />
+        <FullPlayer />
         </PlayerProvider>
       </NewsProvider>
     </BrowserRouter>
