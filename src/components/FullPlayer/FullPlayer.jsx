@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { usePlayer } from "../../context/PlayerContext";
-import { Pause, Play, X } from "lucide-react";
+import { Pause, Play, X, Rewind, FastForward } from "lucide-react";
 import placeholderImg from "../../assets/pod-placeholder.png";
 
 export default function FullPlayer() {
@@ -13,6 +13,8 @@ export default function FullPlayer() {
     currentTime,
     duration,
     seekTo,
+    skipForward,
+    skipBackward
   } = usePlayer();
 
   if (!isExpanded || !track) return null;
@@ -28,7 +30,7 @@ export default function FullPlayer() {
     image_url || // episode-level image from podcast.js
     channelImage || // fallback from feed
     placeholderImg;
-    
+
   return (
     <AnimatePresence>
   <motion.div
@@ -90,12 +92,14 @@ export default function FullPlayer() {
 
       {/* Play/pause */}
       <div className="flex justify-center">
+      <button onClick={skipBackward}><Rewind size={20} /></button>
         <button
           onClick={togglePlay}
-          className="bg-white text-zinc-900 p-4 rounded-full shadow-md hover:bg-zinc-100 transition"
+          className="bg-white text-zinc-900 p-4 rounded-full shadow-md hover:bg-zinc-100 transition mr-10 ml-10"
         >
           {isPlaying ? <Pause size={24} /> : <Play size={24} />}
         </button>
+        <button onClick={skipForward}><FastForward size={20} /></button>
       </div>
     </div>
   </motion.div>

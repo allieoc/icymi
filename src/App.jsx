@@ -10,6 +10,10 @@ import ListenPage from "./pages/ListenPage/ListenPage";
 import { PlayerProvider } from './context/PlayerContext';
 import NowPlayingBar from "./components/NowPlayingBar/NowPlayingBar";
 import FullPlayer from "./components/FullPlayer/FullPlayer";
+import { AuthProvider } from "./context/AuthContext";
+import SignUp from "./components/SignUp/SignUp";
+import LogIn from "./components/LogIn/LogIn";
+
 
 function Layout({ children }) {
   const location = useLocation();
@@ -28,6 +32,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <NewsProvider>
+        <AuthProvider>
       <PlayerProvider>
 
         <Layout>
@@ -37,11 +42,14 @@ export default function App() {
             <Route path="/focused" element={<FocusedPage />} />
             <Route path="/mellow" element={<MellowPage />} />
             <Route path="/ready-to-listen" element={<ListenPage />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<LogIn />} />
           </Routes>
         </Layout>
         <NowPlayingBar />
         <FullPlayer />
         </PlayerProvider>
+        </AuthProvider>
       </NewsProvider>
     </BrowserRouter>
   );

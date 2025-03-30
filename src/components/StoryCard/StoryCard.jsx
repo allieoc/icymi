@@ -3,7 +3,6 @@ import "./StoryCard.css";
 import decodeHtml from "../../utils/decodeHtml";
 import fallbackImage from "../../utils/fallbackImage";
 
-
 export default function StoryCard({ story, isFeatured = false, isCompact = false, hideImage }) {
   if (!story) return null;
 
@@ -44,6 +43,7 @@ export default function StoryCard({ story, isFeatured = false, isCompact = false
   
 
   return (
+    <div className="story-wrapper">
     <a
       href={link}
       className={`story-card ${isFeatured ? "featured" : ""} ${isCompact ? "compact" : ""}`}
@@ -88,6 +88,7 @@ export default function StoryCard({ story, isFeatured = false, isCompact = false
 )}
          {cleanTitle && <h3>{cleanTitle}</h3>}
          {cleanDescription && <p>{cleanDescription}</p>}
+
          {story.pubDate && (
             <>
               {" • "}
@@ -98,5 +99,8 @@ export default function StoryCard({ story, isFeatured = false, isCompact = false
         </>
       )}
     </a>
+
+
+  </div>
   );
 }

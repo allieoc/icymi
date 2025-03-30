@@ -15,7 +15,7 @@ export default function NowPlayingBar() {
     currentTime,
     duration,
     expandPlayer,
-    seekTo
+    seekTo,
   } = usePlayer();
 
 
@@ -31,11 +31,10 @@ export default function NowPlayingBar() {
   };
 
   return (
+    
 <div className="fixed bottom-0 left-0 w-full bg-zinc-900 text-white p-4 z-50 shadow-lg flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
   <div onClick={() => {
-        console.log("Expanding player...");
         expandPlayer();
-        console.log("expandPlayer fired");
     }}
     className="flex-1 overflow-hidden">
     <div className="text-sm font-semibold truncate">{track.title}</div>

@@ -146,7 +146,6 @@ export default function ListenPage() {
                   });
                 }}
               >
-                ▶️ Listen
               </button>
             </div>
             

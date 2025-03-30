@@ -1,0 +1,11 @@
+.save-btn{
+    color: #211f46;
+    text-align: left;
+    margin-top: 5px;
+    padding: 5px;
+    width: max-content;
+  }
+
+  .save-btn:hover{
+    background-color: #eee;
+  }

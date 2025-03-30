@@ -5,13 +5,13 @@ const parser = new Parser({
 
 exports.handler = async function () {
   try {
-    const feed = await parser.parseURL("https://www.cnbc.com/id/10001147/device/rss/rss.html");
+    const feed = await parser.parseURL("https://www.techrepublic.com/rssfeeds/articles/");
     const stories = feed.items.slice(0, 20).map((item) => ({
       title: item.title,
       description: item.contentSnippet || item.content || "",
       link: item.link,
       pubDate: item.pubDate,
-      sourceLabel: "CNBC",
+      sourceLabel: "Tech Republic",
     }));
 
     return {
@@ -19,10 +19,10 @@ exports.handler = async function () {
       body: JSON.stringify(stories),
     };
   } catch (err) {
-    console.error("❌ CNBC fetch failed:", err);
+    console.error("❌ Tech Republic fetch failed:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch CNBC feed." }),
+      body: JSON.stringify({ error: "Failed to fetch Tech Republic feed." }),
     };
   }
 };

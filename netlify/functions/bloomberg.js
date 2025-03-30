@@ -4,7 +4,7 @@ const parser = new Parser();
 exports.handler = async function () {
     try {
       const feed = await parser.parseURL("https://feeds.bloomberg.com/business/news.rss");
-      const stories = feed.items.map((item) => ({
+      const stories = feed.items.slice(0, 20).map((item) => ({
         title: item.title,
         description: item.contentSnippet || item.content || "",
         link: item.link,

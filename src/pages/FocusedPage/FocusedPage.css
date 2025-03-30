@@ -18,6 +18,7 @@
     color: inherit;
   }
 
+
   
   /* Top Stories Layout */
   .top-stories {
@@ -58,7 +59,7 @@
     gap: 1.25rem;
   }
   
-  .side-stories a {
+  .side-story {
     display: flex;
     flex-direction: column;
     text-decoration: none;
@@ -66,6 +67,10 @@
     border-bottom: 1px solid #ddd;
     padding-bottom: 0.75rem;
     transition: background 0.2s ease;
+  }
+
+  .side-story a{
+    margin-bottom: 0;
   }
   
   .side-stories a:hover {
@@ -90,6 +95,11 @@
     gap: 1rem;
     margin: 2rem 4rem;
   }
+
+  .section-block .headline:hover{
+    text-decoration: underline;
+  }
+
   
   /* Let Reddit span all columns below the main grid */
   .section-block.trending {
@@ -100,6 +110,20 @@
     flex: 1 1 300px;
     padding: 1rem;
     border-radius: 12px;
+  }
+
+  .section-block-story{
+    margin-bottom: 0;
+    border-bottom: 1px solid grey;
+  }
+
+  .section-block button{
+    margin-bottom: 5px;
+  }
+
+  .section-block a{
+    margin-bottom: 0;
+    margin-top: 5px;
   }
   
   .section-block h2 {
@@ -164,7 +188,7 @@
   
     /* Responsive for small screens */
     @media (max-width: 900px) {
-      .side-stories a {
+      .side-story{
         background-color:#e0efe8;
       }
       
@@ -189,10 +213,7 @@
         margin: 1rem;
       }
 
-      .section-block .headline:hover{
-        text-decoration: underline;
-      }
-
+      
 
 
       .section-block h2{

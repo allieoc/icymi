@@ -4,8 +4,9 @@ import './FocusedPage.css';
 import { useContext } from "react";
 import { NewsContext } from "../../context/NewsContext";
 import defaultImage from "../../assets/featured-story.png";
+import SaveButton from "../../components/SaveButton/SaveButton";
 
-export default function FocusedPage() {
+export default function FocusedPage({story}) {
   const [featuredStory, setFeaturedStory] = useState(null);
   const [sideStories, setSideStories] = useState([]);  
   const [politicsNews, setPoliticsNews] = useState([]);
@@ -54,13 +55,13 @@ export default function FocusedPage() {
     }
   }
 
-  async function fetchMarketWatch() {
+  async function fetchTechRepublic() {
     try {
-      const res = await fetch("/.netlify/functions/marketwatch");
+      const res = await fetch("/.netlify/functions/techrepublic");
       const data = await res.json();
       return data;
     } catch (err) {
-      console.error("❌ Failed to fetch MarketWatch feed:", err);
+      console.error("❌ Failed to fetch Tech Republic feed:", err);
       return [];
     }
   }
@@ -300,7 +301,7 @@ export default function FocusedPage() {
   
     const strictKeywords = [
      "perspective", "opinion", "editorial", "baby photo",
-      "column", "investors", "box office", "sale", "celebrity", "agriculture", "books",
+      "column", "box office", "sale", "celebrity", "agriculture", "books",
       "book club", "true crime", "culture wars", "watch", "LIVE",
     ];
   
@@ -313,9 +314,9 @@ export default function FocusedPage() {
   
     const excludedSources = [
       "us weekly", "tmz", "eonline", "thecouriertimes", "sports illustrated", "espn", "et online",
-      "buzzfeed", "parade", "everyday health", "daily press", 
-      "Analytics And Insight", "forbes", "daily mail", "dailymail", "alternet", "digitaltrends", "hothardware",
-      "zme science", "oc register", "orange county register", "hello magazine", "boston herald",
+      "buzzfeed", "parade", "everyday health", "daily press", "Analytics And Insight", "forbes", 
+      "daily mail", "dailymail", "alternet", "digitaltrends", "hothardware", "zme science", 
+      "oc register", "orange county register", "hello magazine", "boston herald",
     ];
 
     const sportsKeywords = [
@@ -325,8 +326,9 @@ export default function FocusedPage() {
       "touchdown", "halftime", "quarterback", "pitcher", "home run", "goalkeeper", "soccer match",
       "football game", "basketball game", "baseball game", "tennis match", "golf tournament",
       "sports update", "sports roundup", "player profile", "athlete", "coach", "team", "scoreboard",
-      "locker room", "buzzer beater", "highlight reel", "sports drama", "sports controversy", "ufc", "premier league",
-      "horse racing", "gold medal", "silver medal", "bronze medal", "major league", "minor league",
+      "locker room", "buzzer beater", "highlight reel", "sports drama", "sports controversy", "ufc", 
+      "premier league", "horse racing", "gold medal", "silver medal", "bronze medal", "major league", 
+      "minor league",
     ];
 
     const sportsSources = [
@@ -336,11 +338,7 @@ export default function FocusedPage() {
       "golf digest", "draft kings", "fanduel", "sportsnet", "usatoday sports", "hockey news",
       "the ringer sports"
     ];
-    
-    
-  
-    //const isTooShort = (story.description?.length || 0) < 50;
-    //const hasImage = !!story.image_url;
+
   
     // Check strict keywords using word boundaries
     const hitStrict = strictKeywords.some((word) => {
@@ -389,7 +387,7 @@ export default function FocusedPage() {
         }
       }
   
-    const isFluff = hitStrict || hitLoose || isFromFluffSource || isFromOpinionSection || isSportsStory; //|| isTooShort || !hasImage;
+    const isFluff = hitStrict || hitLoose || isFromFluffSource || isFromOpinionSection || isSportsStory; 
   
     return !isFluff;
   }
@@ -488,7 +486,8 @@ export default function FocusedPage() {
   
     const healthSources = [
       "new scientist",
-      "science daily"
+      "science daily",
+      "stat news"
     ];
   
     const isKeywordMatch = healthKeywords.some(word => title.includes(word));
@@ -513,25 +512,27 @@ export default function FocusedPage() {
     const title = story.title?.toLowerCase() || "";
     const source = story.sourceLabel?.toLowerCase() || "";
   
-    const businessKeywords = [
-      "tech", "ai", "stock", "startup", "economy", "inflation",
-      "bank", "crypto", "layoffs", "google", "apple", "microsoft",
-      "investment", "finance", "earnings", "merger", "ipo", "business", "sells",
-      "business deal", "selling", "equity", "assets",
-    ];
+    // const businessKeywords = [
+    //   "tech", "ai", "stock", "startup", "economy", "inflation",
+    //   "bank", "crypto", "layoffs", "google", "apple", "microsoft",
+    //   "investment", "finance", "earnings", "merger", "ipo", "business", "sells",
+    //   "business deal", "selling", "equity", "assets", "money"
+    // ];
   
     const businessSources = [
-      "marketwatch", 
       "bloomberg", 
       "cnbc", 
       "business insider", 
-      "financial times"
+      "financial times",
+    //  "business insider", 
     ];
   
-    const keywordMatch = businessKeywords.some(word => title.includes(word));
+    // const keywordMatch = businessKeywords.some(word => title.includes(word));
     const sourceMatch = businessSources.includes(source);
+
+    console.log("Business sourceMatch", sourceMatch);
   
-    return keywordMatch || sourceMatch;
+    return sourceMatch;
   }
   
   function interleaveBySource(stories) {
@@ -583,7 +584,7 @@ export default function FocusedPage() {
         aljazeeraTop,
         scienceDaily,
         newScientist,
-        marketWatch,
+        techRepublic,
         bloomberg,
         cnbc,
         statNews,
@@ -604,15 +605,11 @@ export default function FocusedPage() {
         safeFetch(fetchAlJazeera),
         safeFetch(fetchScienceDaily),
         safeFetch(fetchNewScientist),
-        safeFetch(fetchMarketWatch),
+       safeFetch(fetchTechRepublic),
         safeFetch(fetchBloomberg),
         safeFetch(fetchCNBC),
         safeFetch(fetchStatNews),
       ]);
-      console.log("🧾 CNBC stories:", cnbc);
-      console.log("Modern Healthcare stories:", statNews);
-
-      
 
       // 🧠 Merge all top candidates
       const allTopCandidates = [
@@ -694,14 +691,10 @@ export default function FocusedPage() {
       ]);      
 
       const businessCandidates = interleaveBySource([
-        ...marketWatch,
         ...bloomberg,
         ...cnbc,
+        ...techRepublic,
       ]);
-
-      console.log("💼 Business candidates:", businessCandidates);
-      console.log("🧬 Health candidates:", healthCandidates);
-    
 
 
       const fallbackHealth = deduped.filter(belongsToHealthScience);
@@ -743,12 +736,10 @@ export default function FocusedPage() {
         }
       }
 
-      
-
+  
       // 📥 Other stories not in Top 6
       const otherStories = deduped.filter((s) => !usedLinks.has(s.link));
 
-      console.log("🧠 Final other stories:", otherStories);
 
       // 🔄 Fill each section with fallback logic
       fillSection(
@@ -756,8 +747,6 @@ export default function FocusedPage() {
         interleaveBySource(otherStories.filter(belongsToPolitics).filter(isNationalNews)),
         otherStories
       );
-
-      console.log(politicsNews)
 
       fillSection("world", interleaveBySource(otherStories.filter(belongsToWorld).filter(isNationalNews)), otherStories);
       
@@ -835,17 +824,24 @@ export default function FocusedPage() {
         {featuredStory && (
         <>
           {featuredStory.title && (
-            <StoryCard story={featuredStory} isFeatured={true} />
+            <StoryCard story={featuredStory} isFeatured={true}
+             />
           )}
+          <SaveButton className="save-btn" story={featuredStory} />
         </>
         )}
+        
 
         </div>
 
         <div className="side-stories">
           {sideStories.map((story, index) => (
-            <StoryCard key={`${story.link}-${index}`} story={story} isCompact={true} hideImage={true} />
+            <div key={story.link || index} className="side-story">
+            <StoryCard story={story} isCompact={true} hideImage={true} />
+            <SaveButton className="save-btn" story={story} />
+          </div>
           ))}
+   
           
 
         </div>
@@ -857,8 +853,8 @@ export default function FocusedPage() {
   <div className="section-block politics">
     <h2>Politics</h2>
     {politicsNews.slice(0, 5).map((story, index) => (
+    <div key={story.link || index} className="section-block-story">
       <a
-        key={`${story.link}-${index}`}
         href={story.link}
         className="headline"
         target="_blank"
@@ -866,16 +862,20 @@ export default function FocusedPage() {
       >
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
-      </a>
+      </a> 
+      <SaveButton className="save-btn" story={story} />
+        </div>
+
     ))}
+     
   </div>
 
   {/* Health & Science */}
   <div className="section-block health">
     <h2>Health & Science</h2>
     {healthScienceNews.slice(0, 5).map((story, index) => (
+      <div key={story.link || index} className="section-block-story">
       <a
-        key={`${story.link}-${index}`}
         href={story.link}
         className="headline"
         target="_blank"
@@ -884,6 +884,8 @@ export default function FocusedPage() {
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
       </a>
+      <SaveButton className="save-btn" story={story} />
+      </div>
     ))}
   </div>
 
@@ -891,8 +893,8 @@ export default function FocusedPage() {
   <div className="section-block world">
     <h2>World News</h2>
     {worldNews.slice(0, 5).map((story, index) => (
+      <div key={story.link || index} className="section-block-story">
       <a
-        key={`${story.link}-${index}`}
         href={story.link}
         className="headline"
         target="_blank"
@@ -901,6 +903,8 @@ export default function FocusedPage() {
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
       </a>
+      <SaveButton className="save-btn" story={story} />
+    </div>
     ))}
   </div>
 
@@ -908,8 +912,8 @@ export default function FocusedPage() {
   <div className="section-block tech">
     <h2>Business & Tech</h2>
     {businessTechNews.slice(0, 5).map((story, index) => (
+      <div key={story.link || index} className="section-block-story">
       <a
-        key={`${story.link}-${index}`}
         href={story.link}
         className="headline"
         target="_blank"
@@ -918,15 +922,18 @@ export default function FocusedPage() {
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
       </a>
+      <SaveButton className="save-btn" story={story} />
+      </div>
     ))}
+    
   </div>
 
   {/* Trending on Reddit */}
   <div className="section-block trending">
     <h2>Trending on Reddit</h2>
     {trendingNews.slice(0,5).map((story, index) => (
+      <div key={story.link || index} className="section-block-story">
       <a
-        key={`${story.link}-${index}`}
         href={story.link}
         className="headline"
         target="_blank"
@@ -935,6 +942,8 @@ export default function FocusedPage() {
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
       </a>
+      <SaveButton className="save-btn" story={story} />
+     </div>
     ))}
   </div>
 </section>
