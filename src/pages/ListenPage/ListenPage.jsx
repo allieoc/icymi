@@ -3,13 +3,15 @@ import "./ListenPage.css";
 import { useRef } from "react";
 import { usePlayer } from "../../context/PlayerContext";
 import {formatTime} from "../../utils/formatTime";
+import SaveButton from "../../components/SaveButton/SaveButton";
+
 
 export default function ListenPage() {
   const [podcastStories, setPodcastStories] = useState([]);
   const [videoStories, setVideoStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const carouselRef = useRef(null);
-  const { duration, currentTime, playTrack, track, isPlaying, handleScrub } = usePlayer();
+  const { expandPlayer, duration, currentTime, playTrack, track, isPlaying, handleScrub } = usePlayer();
 
 
   function scrollCarousel(direction) {
@@ -91,12 +93,12 @@ export default function ListenPage() {
             <div className="video-carousel" ref={carouselRef}>
 
               {videoStories.map((video, i) => (
+                <div key={video.id} className="video-card">
                 <a
                   key={video.id}
                   href={video.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="video-card"
                 >
                   <img src={video.thumbnail} alt={video.title} className="video-thumbnail" />
                   <p className="video-title">{video.title}</p>
@@ -107,9 +109,12 @@ export default function ListenPage() {
                       day: 'numeric',
                       year: 'numeric'
                     })}</span>
-                  </div>
 
+                  </div>
                 </a>
+
+
+                </div>
               ))}
             </div>
             
@@ -118,41 +123,43 @@ export default function ListenPage() {
             </button>
           </div>
 
-          {/* Podcast grid */}
-          <div className="podcast-grid">
-            {podcastStories.map((story, i) => (
-              <div
-              key={`${story.link}-${i}`}
-              className="podcast-card cursor-pointer"
-              onClick={() =>
-                playTrack({
-                  title: story.title,
-                  channel: story.sourceLabel,
-                  audioUrl: story.audioUrl,
-                })
-              }
-            >
-              {story.image_url && <img src={story.image_url} alt={story.title} />}
-              <h2>{story.title}</h2>
-              {story.sourceLabel && <p className="source-label">{story.sourceLabel}</p>}
-  
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevents the parent div click from firing again
-                  playTrack({
-                    title: story.title,
-                    channel: story.sourceLabel,
-                    audioUrl: story.audioUrl,
-                  });
-                }}
-              >
-              </button>
-            </div>
-            
-            ))}
-          </div>
-        </>
-      )}
+        {/* Podcast grid */}
+        <div className="podcast-grid">
+          {podcastStories.map((podcast, i) => (
+          <div
+            className="podcast-card cursor-pointer"
+            key={`${podcast.link}-${i}`}
+            onClick={() => {
+            playTrack({
+            title: podcast.title,
+            channel: podcast.sourceLabel,
+            audioUrl: podcast.audioUrl,
+          });
+          expandPlayer(); // Show full player
+        }}
+        >
+        {podcast.image_url && (
+          <img src={podcast.image_url} alt={podcast.title} />
+        )}
+
+        <h2>{podcast.title}</h2>
+
+        {podcast.sourceLabel && (
+          <p className="source-label">{podcast.sourceLabel}</p>
+        )}
+
+      {/* SaveButton: stopPropagation so it doesn't trigger the play */}
+      <div className="mt-5"
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <SaveButton story={podcast} />
+      </div>
     </div>
-  );
-}
+  ))}
+</div> 
+      </>
+    )}
+  </div>
+); 
+} 

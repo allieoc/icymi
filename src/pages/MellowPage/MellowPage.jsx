@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import "./MellowPage.css"
+import SaveButton from '../../components/SaveButton/SaveButton';
 
 function MellowPage() {
     const [mellowNews, setMellowNews] = useState();
@@ -153,15 +154,18 @@ function MellowPage() {
 
        {mellowNews && mellowNews.length > 0 ? (
         mellowNews.map((story, index) => (
+            <div className="mellow-story">
     <a
       key={`${story.link}-${index}`}
       href={story.link}
-      className="mellow-story"
       target="_blank"
       rel="noopener noreferrer"
     >
       <h1>{story.title}</h1>
+      
     </a>
+    <SaveButton className="save-btn" story={story} />
+    </div>
   ))
 ) : (
   <p className="loading">Loading feel-good stories...</p>

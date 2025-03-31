@@ -13,6 +13,8 @@ import FullPlayer from "./components/FullPlayer/FullPlayer";
 import { AuthProvider } from "./context/AuthContext";
 import SignUp from "./components/SignUp/SignUp";
 import LogIn from "./components/LogIn/LogIn";
+import SavedPage from "./pages/SavedPage/SavedPage";
+import { SavedItemsProvider } from "./context/SavedItemsContext";
 
 
 function Layout({ children }) {
@@ -34,6 +36,7 @@ export default function App() {
       <NewsProvider>
         <AuthProvider>
       <PlayerProvider>
+      <SavedItemsProvider>
 
         <Layout>
           <Routes>
@@ -44,10 +47,14 @@ export default function App() {
             <Route path="/ready-to-listen" element={<ListenPage />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<LogIn />} />
+            <Route path="/saved" element={<SavedPage />} />
           </Routes>
         </Layout>
+
         <NowPlayingBar />
         <FullPlayer />
+
+        </SavedItemsProvider>
         </PlayerProvider>
         </AuthProvider>
       </NewsProvider>
