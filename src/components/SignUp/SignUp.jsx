@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
+import { createProfile } from "../../utils/createProfile";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -8,6 +9,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+
 
 
   const handleSignup = async (e) => {
@@ -19,15 +21,21 @@ export default function Signup() {
           data: { name }, // saves to user_metadata
         },
       });
+      
 
       if (error) {
         console.error("Signup error:", error.message);
         setErrorMsg("Signup failed. Try a different email.");
-      } else {
+         } 
+
+      const user = data?.user;
+      
+     if(user){
         setSuccessMsg("Success! Check your email to confirm your account.");
         setEmail("");
         setPassword("");
         setName("");
+        createProfile(user);
       }
   };
 
@@ -84,6 +92,7 @@ export default function Signup() {
     >
       {loading ? "Signing up..." : "Sign Up"}
     </button>
+    
   </form>
 </div>
   );

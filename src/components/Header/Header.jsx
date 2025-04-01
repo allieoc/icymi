@@ -33,7 +33,7 @@ export default function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="site-header bg-indigo-900 text-white p-4">
+    <header className="site-header bg-indigo-950 text-white p-4">
   <div className="w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
   
     {/* Logo + Hamburger */}
@@ -58,7 +58,12 @@ export default function Header() {
         <>
 
           <div className="flex justify-center md:justify-start gap-10">
-          <span className="text-base">Hi, {name || user.email}!</span>
+          <Link
+            to="/profile"
+            className="text-base font-medium hover:underline transition"
+          >
+            Hi, {name || user.email}!
+          </Link>
             <button onClick={handleLogout} className="underline">
               Log Out
             </button>

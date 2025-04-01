@@ -71,7 +71,7 @@ export default function SavedPage() {
             </Link>
         </div>
         
-      <h1 className="text-indigo-600 text-center text-2xl font-bold mb-6">Saved For Later</h1>
+      <h1 className="text-indigo-950 text-center text-2xl font-bold mb-6">Saved For Later</h1>
 
       {/* Podcasts */}
         {savedPodcasts.length > 0 && (
@@ -91,9 +91,9 @@ export default function SavedPage() {
       <h2 className="text-xl font-semibold mb-4">Articles</h2>
       <div className="grid gap-6">
         {savedArticles.map((item) => (
-          <div key={item.id} className="bg-zinc-800 p-4 rounded shadow-md relative">
+          <div key={item.id} className="bg-indigo-950 p-4 rounded-md shadow-md relative">
             <button
-              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+              className="absolute top-2 right-2 text-zinc-200 hover:text-zinc-300"
               onClick={async () => {
                 await supabase.from("saved_items").delete().eq("id", item.id);
                 setSavedArticles((prev) => prev.filter((x) => x.id !== item.id));
@@ -112,7 +112,7 @@ export default function SavedPage() {
   )}
 
     {savedArticles.length === 0 && savedPodcasts.length === 0 && (
-        <p>You haven't saved anything yet.</p>
+        <p className="text-indigo-950 text-center">You haven't saved anything yet.</p>
     )}
     </div>
   );

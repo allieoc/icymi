@@ -4,13 +4,13 @@ const API_KEY = process.env.YT_API_KEY;
 
 
 const CHANNELS = [
-  {name: "Vox", id: "UCLXo7UDZvByw2ixzpQCufnA" },
-  {name: "Vice News", id: "UCn8zNIfYAQNdrFRrr8oibKw"},
   {name: "Diary of a CEO", id: "UCGq-a57w-aPwyi3pW7XLiHw"},
   {name: "The Mel Robbins Podcast", id: "UCk2U-Oqn7RXf-ydPqfSxG5g"},
   {name:"The Ezra Klein Show", id: "UCnxuOd8obvLLtf5_-YKFbiQ"},
-  {name:"The Associated Press", id: "UC52X5wxOL_s5yw0dQk7NtgA"},
-  {name:"PBS Newshour", id: "UC6ZFN9Tx6xh-skXCuRHCDpQ"}
+  {name:"PBS Newshour", id: "UC6ZFN9Tx6xh-skXCuRHCDpQ"},
+  {name:"Armchair Expert", id: "UClKP53RewJWK5s5WtLSg7Dg"},
+  {name:"News Not Noise", id: "UC3-WJ6xhRefJgQUlVkf-pSw"},
+  {name:"The Weekly Show with Jon Stewart", id: "UCQlJ7XpBtiMLKNSd4RAJmRQ"}
 ];
 
 export default async function handler(req) {
@@ -79,7 +79,7 @@ export default async function handler(req) {
       allVideos.push(...videos);
     }
 
-    return new Response(JSON.stringify(allVideos.sort(() => Math.random() - 0.5)), {
+    return new Response(JSON.stringify(allVideos.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))), {
       status: 200,
       headers: { "Content-Type": "application/json" }
     });

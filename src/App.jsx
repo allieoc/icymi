@@ -15,6 +15,7 @@ import SignUp from "./components/SignUp/SignUp";
 import LogIn from "./components/LogIn/LogIn";
 import SavedPage from "./pages/SavedPage/SavedPage";
 import { SavedItemsProvider } from "./context/SavedItemsContext";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
 
 
 function Layout({ children }) {
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<LogIn />} />
             <Route path="/saved" element={<SavedPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Routes>
         </Layout>
 

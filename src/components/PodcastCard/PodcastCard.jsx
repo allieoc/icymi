@@ -34,12 +34,12 @@ export default function PodcastCard({ podcast, showRemove = false }) {
   return (
     <div
       onClick={handleClick}
-      className="relative cursor-pointer bg-zinc-800 rounded-xl p-4 hover:bg-zinc-700 transition shadow-md"
+      className="relative cursor-pointer bg-indigo-950 rounded-xl p-4 hover:bg-indigo-900 transition shadow-md"
     >
       {showRemove && (
         <button
           onClick={handleUnsave}
-          className="absolute top-2 right-2 text-sm text-zinc-400 hover:text-red-400"
+          className="absolute top-2 right-2 text-sm text-zinc-400 hover:text-red-400 bg-white"
         >
           ✖
         </button>
