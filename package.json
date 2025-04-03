@@ -14,7 +14,7 @@
     "axios": "^1.8.4",
     "framer-motion": "^12.6.2",
     "lucide-react": "^0.485.0",
-    "netlify-cli": "^19.1.4",
+    "netlify-cli": "^19.1.5",
     "node-fetch": "^3.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

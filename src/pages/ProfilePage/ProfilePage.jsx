@@ -323,10 +323,10 @@ export default function ProfilePage() {
         {savedItems.length === 0 ? (
   <p className="text-sm text-zinc-400">You haven't saved anything yet. Go find something cool to come back to!</p>
 ) : (
-  <>
+  <div className="mb-6">
           {/* Podcasts */}
           {savedItems.some(item => item.item_type === "podcast") && (
-            <>
+            <div>
               <h3 className="text-md font-semibold mb-2 mt-4">🎧 Podcasts</h3>
               <div className="grid grid-cols-2 gap-4">
                 {savedItems
@@ -350,13 +350,13 @@ export default function ProfilePage() {
                     />
                   ))}
               </div>
-            </>
+            </div>
           )}
 
         {/* Articles */}
         {savedItems.some(item => item.item_type === "article") && (
           <>
-            <h3 className="text-md font-semibold mb-2 mt-6">📰 Articles</h3>
+            <h3 className="text-md font-semibold mb-6 mt-6">📰 Articles</h3>
             <div className="grid grid-cols-2 gap-4 mb-4">
               {savedItems
                 .filter(item => item.item_type === "article")
@@ -371,10 +371,14 @@ export default function ProfilePage() {
                   </Link>
                 ))}
             </div>
-            <Link to="/saved" className="text-sm font-bold">View all saved</Link>
+            
           </>
+          
         )}
-      </>
+        <div className="mt-6">
+        <Link to="/saved" className="text-md text-indigo-950 font-bold">View all saved</Link>
+        </div>
+        </div>
     )}
 
 

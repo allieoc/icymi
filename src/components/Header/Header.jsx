@@ -10,8 +10,6 @@ export default function Header() {
   const navRef = useRef();
   const location = useLocation();
   const isFocusedPage = location.pathname === "/focused";
-  const hiddenPaths = ["/mellow", "/ready-to-listen", "/saved", "/profile"];
-  const hideEverythingButLogo = hiddenPaths.includes(location.pathname);
 
   const { user } = useAuth();
   const name = user?.user_metadata?.name;
@@ -48,8 +46,8 @@ export default function Header() {
               <span className="block w-6 h-0.5 bg-white"></span>
               <span className="block w-6 h-0.5 bg-white"></span>
             </button>
-          
           </div>
+
           {/* Mood Buttons (desktop only) */}
           <div className="hidden md:flex gap-3 mt-3 md:mt-0">
             <Link to="/focused" className="bg-stone-400 ml-20 text-white text-xs px-3 py-1 rounded-full hover:bg-stone-600 transition">Focused</Link>
@@ -74,7 +72,6 @@ export default function Header() {
               >
                 Saved ({savedCount})
               </Link>
-
             </>
           ) : (
             <>
@@ -83,58 +80,36 @@ export default function Header() {
             </>
           )}
         </div>
-</div>
-     {/* Hamburger menu nav */}
-{!hideEverythingButLogo && (
-  <nav
-    ref={navRef}
-    className={`mt-4 ${menuOpen ? "block" : "hidden"} md:block`}
-  >
-    <div className="flex flex-col gap-2 md:flex-row md:space-x-4">
-      
-      {/* Mood Links - always show on mobile */}
-      <div className="md:hidden mb-4 space-y-1">
-        <Link
-          to="/focused"
-          onClick={() => setMenuOpen(false)}
-          className="block text-sm text-white hover:text-stone-300"
-        >
-          📰 Focused
-        </Link>
-        <Link
-          to="/mellow"
-          onClick={() => setMenuOpen(false)}
-          className="block text-sm text-white hover:text-blue-200"
-        >
-          🌈 Mellow
-        </Link>
-        <Link
-          to="/ready-to-listen"
-          onClick={() => setMenuOpen(false)}
-          className="block text-sm text-white hover:text-purple-300"
-        >
-          🎧 Ready to Listen
-        </Link>
       </div>
 
-      {/* Category Links - only on Focused page */}
-      {isFocusedPage && (
-        <div className="space-y-1 md:space-y-0 md:flex md:space-x-4">
-          {Object.values(categories).map(({ slug, title }) => (
-            <Link
-              key={slug}
-              to={`/category/${slug}`}
-              onClick={() => setMenuOpen(false)}
-              className="block text-sm text-white hover:text-stone-300"
-            >
-              {title}
-            </Link>
-          ))}
+      {/* Hamburger menu nav (works on all pages) */}
+      <nav
+        ref={navRef}
+        className={`mt-4 ${menuOpen ? "block" : "hidden"} md:block`}
+      >
+        {/* Mood Links (always show in hamburger) */}
+        <div className="md:hidden mb-4 space-y-1">
+          <Link to="/focused" onClick={() => setMenuOpen(false)} className="block text-sm text-white hover:text-stone-300">📰 Focused</Link>
+          <Link to="/mellow" onClick={() => setMenuOpen(false)} className="block text-sm text-white hover:text-blue-200">🌈 Mellow</Link>
+          <Link to="/ready-to-listen" onClick={() => setMenuOpen(false)} className="block text-sm text-white hover:text-purple-300">🎧 Ready to Listen</Link>
         </div>
-      )}
-    </div>
-  </nav>
-)}
+
+        {/* Category Links - only on Focused */}
+        {isFocusedPage && (
+          <div className="flex flex-wrap justify-center gap-4">
+            {Object.values(categories).map(({ slug, title }) => (
+              <Link
+                key={slug}
+                to={`/category/${slug}`}
+                onClick={() => setMenuOpen(false)}
+                className="text-sm text-white hover:text-stone-300"
+              >
+                {title}
+              </Link>
+            ))}
+          </div>
+        )}
+      </nav>
     </header>
   );
 }
