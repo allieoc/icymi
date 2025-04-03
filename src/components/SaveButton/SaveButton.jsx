@@ -6,9 +6,10 @@ import { useSavedItems } from "../../context/SavedItemsContext";
 
 export default function SaveButton({ story }) {
   const { user } = useAuth();
-  const { fetchSavedCount } = useSavedItems();
+  const { fetchSavedCount, incrementSavedCount, decrementSavedCount } = useSavedItems();
   const [isSaved, setIsSaved] = useState(false);
   const [savedId, setSavedId] = useState(null);
+  const [saveCount, setSaveCount] = useState(0);
 
   if (!story || !story.link) return null;
 
@@ -33,6 +34,23 @@ export default function SaveButton({ story }) {
     checkIfSaved();
   }, [user, story.link]);
 
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("saved_items")
+        .select("*", { count: "exact", head: true })
+        .eq("url", story.link || story.url);
+  
+      if (typeof count === "number") {
+        setSaveCount(count);
+      }
+    };
+  
+    if (story.link || story.url) {
+      fetchCount();
+    }
+  }, [story.link, story.url]);
+
   const handleToggleSave = async () => {
     if (!user) {
       alert("Please log in to save items");
@@ -42,7 +60,9 @@ export default function SaveButton({ story }) {
     const isPodcast = !!story.audioUrl;
   
     if (isSaved) {
-      // Unsave
+      setIsSaved(false);
+      decrementSavedCount();
+  
       const { error } = await supabase
         .from("saved_items")
         .delete()
@@ -51,11 +71,14 @@ export default function SaveButton({ story }) {
   
       if (error) {
         console.error("Error unsaving item:", error);
-      } else {
-        setIsSaved(false);
+        setIsSaved(true); // roll back if it fails
       }
     } else {
-      // Save
+      // Optimistically save
+      setIsSaved(true);
+      incrementSavedCount();
+   
+  
       const { error } = await supabase.from("saved_items").insert([
         {
           user_id: user.id,
@@ -64,18 +87,18 @@ export default function SaveButton({ story }) {
           source: story.sourceLabel || story.source,
           image_url: story.image_url || null,
           audio_url: story.audioUrl || null,
-          published_at: story.publishedAt || story.pubDate || null,
-          item_type: isPodcast ? "podcast" : "article", // ✅ now safe to reference
+          saved_at: new Date().toISOString(),
+          item_type: isPodcast ? "podcast" : "article",
         },
       ]);
   
       if (error) {
         console.error("Error saving item:", error);
-      } else {
-        setIsSaved(true);
+        setIsSaved(false); // roll back if it fails
       }
     }
   };
+  
 
   return (
     <button

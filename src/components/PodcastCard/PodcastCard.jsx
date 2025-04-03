@@ -3,7 +3,7 @@ import { supabase } from "../../utils/supabaseClient";
 import SaveButton from "../SaveButton/SaveButton";
 
 
-export default function PodcastCard({ podcast, showRemove = false }) {
+export default function PodcastCard({ podcast, showRemove = false, onClick }) {
   const { playTrack, expandPlayer } = usePlayer();
 
   const handleClick = () => {
@@ -33,8 +33,11 @@ export default function PodcastCard({ podcast, showRemove = false }) {
 
   return (
     <div
-      onClick={handleClick}
-      className="relative cursor-pointer bg-indigo-950 rounded-xl p-4 hover:bg-indigo-900 transition shadow-md"
+    onClick={(e) => {
+      handleClick(); // existing internal click behavior
+      if (onClick) onClick(e); // 🔥 external click from parent
+    }}
+    className="relative cursor-pointer bg-indigo-950 rounded-xl p-4 hover:bg-indigo-900 transition shadow-md"
     >
       {showRemove && (
         <button

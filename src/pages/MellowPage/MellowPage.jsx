@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import "./MellowPage.css"
 import SaveButton from '../../components/SaveButton/SaveButton';
+import { useAuth } from '../../context/AuthContext';
+import { logView } from '../../utils/logView';
 
 function MellowPage() {
     const [mellowNews, setMellowNews] = useState();
     const [loading, setLoading] = useState (true);
+      const { user } = useAuth();
 
     async function fetchGoodGoodGood() {
         try {
           const res = await fetch("/.netlify/functions/goodgoodgood");
           const data = await res.json();
-          console.log("Good Good Good fetch:", data);
           return data;
         } catch (err) {
           console.error("❌ Failed to fetch Good Good Good feed:", err);
@@ -22,7 +24,6 @@ function MellowPage() {
         try {
           const res = await fetch("/.netlify/functions/goodnewsnetwork");
           const data = await res.json();
-          console.log("Good News Network fetch:", data);
           return data;
         } catch (err) {
           console.error("❌ Failed to fetch Good News Network feed:", err);
@@ -34,7 +35,6 @@ function MellowPage() {
         try {
           const res = await fetch("/.netlify/functions/positivenews");
           const data = await res.json();
-          console.log("Positive News fetch:", data);
           return data;
         } catch (err) {
           console.error("❌ Failed to fetch Positive News feed:", err);
@@ -46,7 +46,6 @@ function MellowPage() {
         try {
           const res = await fetch("/.netlify/functions/reasonstobecheerful");
           const data = await res.json();
-          console.log("Reasons To Be Cheerful fetch:", data);
           return data;
         } catch (err) {
           console.error("❌ Failed to fetch Reasons To Be Cheerful feed:", err);
@@ -59,7 +58,6 @@ function MellowPage() {
         try {
           const res = await fetch("/.netlify/functions/theoptimistdaily");
           const data = await res.json();
-          console.log("The Optimist Daily fetch:", data);
           return data;
         } catch (err) {
           console.error("❌ Failed to fetch The Optimist Daily feed:", err);
@@ -134,15 +132,10 @@ function MellowPage() {
             new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0))
 
         setMellowNews(sortedMellow);
-        console.log("Sources used:", allMellowNews.map(s => s.sourceLabel));
-
-
     }
 
    setLoading(false);
    fetchMellowNews();
-
-
 
     }, [])
 
@@ -160,6 +153,24 @@ function MellowPage() {
       href={story.link}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => {
+        if (user?.id && story?.link) {
+          logView({
+            userId: user.id,
+            content: {
+              id: story.link,
+              content_type: "article",
+              title: story.title,
+              url: story.link,
+             // image_url: story.image_url,
+              source: story.sourceLabel,
+            },
+          });
+        } else {
+          console.warn("⛔ Missing user or story data", { user, story });
+        }
+      }}
+      
     >
       <h1>{story.title}</h1>
       

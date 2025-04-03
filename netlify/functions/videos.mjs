@@ -5,12 +5,16 @@ const API_KEY = process.env.YT_API_KEY;
 
 const CHANNELS = [
   {name: "Diary of a CEO", id: "UCGq-a57w-aPwyi3pW7XLiHw"},
-  {name: "The Mel Robbins Podcast", id: "UCk2U-Oqn7RXf-ydPqfSxG5g"},
+ // {name: "The Mel Robbins Podcast", id: "UCk2U-Oqn7RXf-ydPqfSxG5g"},
   {name:"The Ezra Klein Show", id: "UCnxuOd8obvLLtf5_-YKFbiQ"},
-  {name:"PBS Newshour", id: "UC6ZFN9Tx6xh-skXCuRHCDpQ"},
-  {name:"Armchair Expert", id: "UClKP53RewJWK5s5WtLSg7Dg"},
-  {name:"News Not Noise", id: "UC3-WJ6xhRefJgQUlVkf-pSw"},
-  {name:"The Weekly Show with Jon Stewart", id: "UCQlJ7XpBtiMLKNSd4RAJmRQ"}
+ // {name:"PBS Newshour", id: "UC6ZFN9Tx6xh-skXCuRHCDpQ"},
+ // {name:"Armchair Expert", id: "UClKP53RewJWK5s5WtLSg7Dg"},
+  {name:"The Weekly Show with Jon Stewart", id: "UCQlJ7XpBtiMLKNSd4RAJmRQ"},
+  {name:"Vox", id:"UCLXo7UDZvByw2ixzpQCufnA"},
+  {name:"The Wall Street Journal", id:"UCK7tptUDHh-RYDsdxO1-5QQ"},
+  {name:"Bloomberg Originals", id:"UCUMZ7gohGI9HcU9VNsr2FJQ"},
+  {name:"Vice", id:"UCn8zNIfYAQNdrFRrr8oibKw"},
+  {name:"Business Insider", id:"UCcyq283he07B7_KUX07mmtA"}
 ];
 
 export default async function handler(req) {
@@ -59,11 +63,13 @@ export default async function handler(req) {
             (item.snippet.thumbnails?.medium?.width || 1) /
             (item.snippet.thumbnails?.medium?.height || 1);
 
+          const underThreeMins = totalSeconds < 180;
+
           const title = item.snippet.title.toLowerCase();
           const isLikelyShort = title.includes("shorts") || aspectRatio < 1;
 
           const filteredOut =
-          !isEmbeddable || isLikelyShort;
+          !isEmbeddable || isLikelyShort || underThreeMins;
 
           return !filteredOut;
         })

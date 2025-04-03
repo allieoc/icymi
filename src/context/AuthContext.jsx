@@ -17,11 +17,9 @@ export function AuthProvider({ children }) {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
-            console.log("Setting user as:", session.user);
             setUser(session.user);
             createProfile(session.user); // <- call it here!
           } else {
-            console.log(user);
             setUser(null);
           }
         });
@@ -29,8 +27,6 @@ export function AuthProvider({ children }) {
       listener?.subscription.unsubscribe();
     };
   }, []);
-
-  console.log(user)
   
   useEffect(() => {
     if (user) {

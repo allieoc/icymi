@@ -1,4 +1,3 @@
-// context/SavedItemsContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { useAuth } from "./AuthContext";
@@ -17,7 +16,17 @@ export const SavedItemsProvider = ({ children }) => {
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id);
 
-    if (!error) setSavedCount(count);
+    if (!error && typeof count === "number") {
+      setSavedCount(count);
+    }
+  };
+
+  const incrementSavedCount = () => {
+    setSavedCount((prev) => prev + 1);
+  };
+
+  const decrementSavedCount = () => {
+    setSavedCount((prev) => Math.max(prev - 1, 0));
   };
 
   useEffect(() => {
@@ -25,7 +34,14 @@ export const SavedItemsProvider = ({ children }) => {
   }, [user]);
 
   return (
-    <SavedItemsContext.Provider value={{ savedCount, fetchSavedCount }}>
+    <SavedItemsContext.Provider
+      value={{
+        savedCount,
+        fetchSavedCount,
+        incrementSavedCount,
+        decrementSavedCount,
+      }}
+    >
       {children}
     </SavedItemsContext.Provider>
   );

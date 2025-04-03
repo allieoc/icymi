@@ -5,6 +5,8 @@ import { useContext } from "react";
 import { NewsContext } from "../../context/NewsContext";
 import defaultImage from "../../assets/featured-story.png";
 import SaveButton from "../../components/SaveButton/SaveButton";
+import { logView } from "../../utils/logView";
+import { useAuth } from "../../context/AuthContext";
 
 export default function FocusedPage({story}) {
   const [featuredStory, setFeaturedStory] = useState(null);
@@ -16,6 +18,7 @@ export default function FocusedPage({story}) {
   const [businessTechNews, setBusinessTechNews] = useState([]);
   const [healthScienceNews, setHealthScienceNews] = useState([]);
   const { setNewsState } = useContext(NewsContext);
+  const { user } = useAuth();
 
   
 
@@ -31,11 +34,21 @@ export default function FocusedPage({story}) {
     return defaultImage;
   }
 
+  async function fetchPhys() {
+    try {
+      const res = await fetch("/.netlify/functions/phys");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("❌ Failed to fetch Phys feed:", err);
+      return [];
+    }
+  }
+
   async function fetchStatNews() {
     try {
       const res = await fetch("/.netlify/functions/statnews");
       const data = await res.json();
-      console.log("Stat news fetch:", data);
       return data;
     } catch (err) {
       console.error("❌ Failed to fetch Stat News feed:", err);
@@ -242,32 +255,32 @@ export default function FocusedPage({story}) {
     }
   }
   
-  async function fetchMediastackNews(sourceLabel = "Mediastack") {
-    const key = import.meta.env.VITE_MEDIASTACK_API_KEY;
-    const url = `http://api.mediastack.com/v1/news?access_key=${key}&countries=us&languages=en&limit=10&sort=published_desc`;
+  // async function fetchMediastackNews(sourceLabel = "Mediastack") {
+  //   const key = import.meta.env.VITE_MEDIASTACK_API_KEY;
+  //   const url = `http://api.mediastack.com/v1/news?access_key=${key}&countries=us&languages=en&limit=10&sort=published_desc`;
   
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
+  //   try {
+  //     const res = await fetch(url);
+  //     const data = await res.json();
   
-      if (!Array.isArray(data.data)) {
-        console.warn("⚠️ Unexpected Mediastack response:", data);
-        return [];
-      }
+  //     if (!Array.isArray(data.data)) {
+  //       console.warn("⚠️ Unexpected Mediastack response:", data);
+  //       return [];
+  //     }
   
-      return data.data.map((story) => ({
-        title: story.title,
-        description: story.description,
-        link: story.url,
-        image_url: story.image,
-        sourceLabel,
-        pubDate: story.published_at,
-      }));
-    } catch (err) {
-      console.error("❌ Error fetching Mediastack news:", err);
-      return [];
-    }
-  }
+  //     return data.data.map((story) => ({
+  //       title: story.title,
+  //       description: story.description,
+  //       link: story.url,
+  //       image_url: story.image,
+  //       sourceLabel,
+  //       pubDate: story.published_at,
+  //     }));
+  //   } catch (err) {
+  //     console.error("❌ Error fetching Mediastack news:", err);
+  //     return [];
+  //   }
+  // }
   
   
  // Fetch trending stories from Reddit
@@ -302,7 +315,7 @@ export default function FocusedPage({story}) {
     const strictKeywords = [
      "perspective", "opinion", "editorial", "baby photo",
       "column", "box office", "sale", "celebrity", "agriculture", "books",
-      "book club", "true crime", "culture wars", "watch", "LIVE",
+      "book club", "true crime", "culture wars", "watch", "LIVE", "musical"
     ];
   
     const looseKeywords = [
@@ -316,7 +329,7 @@ export default function FocusedPage({story}) {
       "us weekly", "tmz", "eonline", "thecouriertimes", "sports illustrated", "espn", "et online",
       "buzzfeed", "parade", "everyday health", "daily press", "Analytics And Insight", "forbes", 
       "daily mail", "dailymail", "alternet", "digitaltrends", "hothardware", "zme science", 
-      "oc register", "orange county register", "hello magazine", "boston herald",
+      "oc register", "orange county register", "hello magazine", "boston herald", "semifinal", 
     ];
 
     const sportsKeywords = [
@@ -366,26 +379,26 @@ export default function FocusedPage({story}) {
         sourceLabel.includes(src) || link.includes(src)
       );
 
-      const isMediastack = sourceLabel.includes("mediastack");
-      if (isMediastack) {
-        const mediastackFluff = [
-          "horse racing", "consensus picks", "powerball numbers", "lotto", "snow white",
-          "opens to", "box office", "celebrity", "fun fact", "kicks off", "fashion", "tv show",
-          "santa anita", "red carpet", "bachelorette", "netflix releases", "cast revealed", "spoiler alert",
-          "dating rumors", "love island"
-        ];
+      // const isMediastack = sourceLabel.includes("mediastack");
+      // if (isMediastack) {
+      //   const mediastackFluff = [
+      //     "horse racing", "consensus picks", "powerball numbers", "lotto", "snow white",
+      //     "opens to", "box office", "celebrity", "fun fact", "kicks off", "fashion", "tv show",
+      //     "santa anita", "red carpet", "bachelorette", "netflix releases", "cast revealed", "spoiler alert",
+      //     "dating rumors", "love island"
+      //   ];
 
-        const hasMediastackFluff = mediastackFluff.some((term) =>
-          title.includes(term) || description.includes(term)
-        );
+      //   const hasMediastackFluff = mediastackFluff.some((term) =>
+      //     title.includes(term) || description.includes(term)
+      //   );
 
-        const isTooShort = title.length < 40;
-        const isLikelyFluff = hasMediastackFluff || isTooShort;
+      //   const isTooShort = title.length < 40;
+      //   const isLikelyFluff = hasMediastackFluff || isTooShort;
 
-        if (isLikelyFluff) {
-          return false;
-        }
-      }
+      //   if (isLikelyFluff) {
+      //     return false;
+      //   }
+      // }
   
     const isFluff = hitStrict || hitLoose || isFromFluffSource || isFromOpinionSection || isSportsStory; 
   
@@ -410,7 +423,7 @@ export default function FocusedPage({story}) {
     "npr",
     "bbc",
     "reuters",
-    "mediastack",
+    //"mediastack",
     "the guardian",
     "cnn",
     "axios",
@@ -487,7 +500,8 @@ export default function FocusedPage({story}) {
     const healthSources = [
       "new scientist",
       "science daily",
-      "stat news"
+      "stat news",
+      "phys"
     ];
   
     const isKeywordMatch = healthKeywords.some(word => title.includes(word));
@@ -524,13 +538,10 @@ export default function FocusedPage({story}) {
       "cnbc", 
       "business insider", 
       "financial times",
-    //  "business insider", 
     ];
   
     // const keywordMatch = businessKeywords.some(word => title.includes(word));
     const sourceMatch = businessSources.includes(source);
-
-    console.log("Business sourceMatch", sourceMatch);
   
     return sourceMatch;
   }
@@ -575,7 +586,7 @@ export default function FocusedPage({story}) {
         guardianWorld,
         gnewsWorld,
         gnewsNation,
-        mediastackNews,
+       // mediastackNews,
         reddit,
         nprTop,
         bbc,
@@ -588,6 +599,7 @@ export default function FocusedPage({story}) {
         bloomberg,
         cnbc,
         statNews,
+        phys
       ] = await Promise.all([
         safeFetch(() => fetchNewsDataSection("politics")),
         safeFetch(() => fetchNewsDataSection("world")),
@@ -596,7 +608,7 @@ export default function FocusedPage({story}) {
         safeFetch(() => fetchGuardianSection("world")),
         safeFetch(() => fetchGNewsSection("world")),
         safeFetch(() => fetchGNewsSection("nation")),
-        safeFetch(fetchMediastackNews),
+       // safeFetch(fetchMediastackNews),
         safeFetch(fetchRedditTrending),
         safeFetch(fetchNPRTop),
         safeFetch(fetchBBCWorld),
@@ -605,10 +617,11 @@ export default function FocusedPage({story}) {
         safeFetch(fetchAlJazeera),
         safeFetch(fetchScienceDaily),
         safeFetch(fetchNewScientist),
-       safeFetch(fetchTechRepublic),
+        safeFetch(fetchTechRepublic),
         safeFetch(fetchBloomberg),
         safeFetch(fetchCNBC),
         safeFetch(fetchStatNews),
+        safeFetch(fetchPhys),
       ]);
 
       // 🧠 Merge all top candidates
@@ -620,7 +633,7 @@ export default function FocusedPage({story}) {
         ...guardianWorld,
         ...gnewsWorld,
         ...gnewsNation,
-        ...mediastackNews,
+       //News,
         ...nprTop,
         ...bbc,
         ...pbsTop,
@@ -687,7 +700,8 @@ export default function FocusedPage({story}) {
       const healthCandidates = interleaveBySource([
         ...scienceDaily,
         ...newScientist,
-        ...statNews
+        ...statNews,
+        ...phys
       ]);      
 
       const businessCandidates = interleaveBySource([
@@ -753,7 +767,6 @@ export default function FocusedPage({story}) {
       fillSection(
         "businessTech",
         (businessCandidates.filter(isNationalNews)), fallbackBusiness);
-        console.log("🧠 businessTechNews:", businessTechNews);
 
 
       fillSection("healthScience", (healthCandidates.filter(isNationalNews)), fallbackHealth);
@@ -824,20 +837,54 @@ export default function FocusedPage({story}) {
         {featuredStory && (
         <>
           {featuredStory.title && (
-            <StoryCard story={featuredStory} isFeatured={true}
-             />
+            <StoryCard 
+            story={featuredStory} 
+            isFeatured={true}
+            onClick={() => {
+              if (user?.id && featuredStory?.link) {
+                logView({
+                  userId: user.id,
+                  content: {
+                    id: featuredStory.link,
+                    content_type: "article",
+                    title: featuredStory.title,
+                    url: featuredStory.link,
+                    // image_url: featuredStory.image_url,
+                    source: featuredStory.sourceLabel,
+                  },
+                })}}}/>
+              
           )}
           <SaveButton className="save-btn" story={featuredStory} />
         </>
         )}
-        
-
         </div>
 
         <div className="side-stories">
           {sideStories.map((story, index) => (
             <div key={story.link || index} className="side-story">
-            <StoryCard story={story} isCompact={true} hideImage={true} />
+            <StoryCard 
+            story={story} 
+            isCompact={true} 
+            hideImage={true}
+            onClick={() => {
+                    if (user?.id && story?.link) {
+                      logView({
+                        userId: user.id,
+                        content: {
+                          id: story.link,
+                          content_type: "article",
+                          title: story.title,
+                          url: story.link,
+                         // image_url: story.image_url,
+                          source: story.sourceLabel,
+                        },
+                      });
+                    } else {
+                      console.warn("⛔ Missing user or story data", { user, story });
+                    }
+                  }}
+                 />
             <SaveButton className="save-btn" story={story} />
           </div>
           ))}
@@ -859,6 +906,23 @@ export default function FocusedPage({story}) {
         className="headline"
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => {
+                if (user?.id && story?.link) {
+                  logView({
+                    userId: user.id,
+                    content: {
+                      id: story.link,
+                      content_type: "article",
+                      title: story.title,
+                      url: story.link,
+                     // image_url: story.image_url,
+                      source: story.sourceLabel,
+                    },
+                  });
+                } else {
+                  console.warn("⛔ Missing user or story data", { user, story });
+                }
+              }}
       >
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
@@ -880,6 +944,23 @@ export default function FocusedPage({story}) {
         className="headline"
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => {
+                if (user?.id && story?.link) {
+                  logView({
+                    userId: user.id,
+                    content: {
+                      id: story.link,
+                      content_type: "article",
+                      title: story.title,
+                      url: story.link,
+                     // image_url: story.image_url,
+                      source: story.sourceLabel,
+                    },
+                  });
+                } else {
+                  console.warn("⛔ Missing user or story data", { user, story });
+                }
+              }}
       >
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
@@ -899,6 +980,23 @@ export default function FocusedPage({story}) {
         className="headline"
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => {
+                if (user?.id && story?.link) {
+                  logView({
+                    userId: user.id,
+                    content: {
+                      id: story.link,
+                      content_type: "article",
+                      title: story.title,
+                      url: story.link,
+                     // image_url: story.image_url,
+                      source: story.sourceLabel,
+                    },
+                  });
+                } else {
+                  console.warn("⛔ Missing user or story data", { user, story });
+                }
+              }}
       >
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
@@ -918,6 +1016,23 @@ export default function FocusedPage({story}) {
         className="headline"
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => {
+                if (user?.id && story?.link) {
+                  logView({
+                    userId: user.id,
+                    content: {
+                      id: story.link,
+                      content_type: "article",
+                      title: story.title,
+                      url: story.link,
+                     // image_url: story.image_url,
+                      source: story.sourceLabel,
+                    },
+                  });
+                } else {
+                  console.warn("⛔ Missing user or story data", { user, story });
+                }
+              }}
       >
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>
@@ -938,6 +1053,23 @@ export default function FocusedPage({story}) {
         className="headline"
         target="_blank"
         rel="noopener noreferrer"
+       onClick={() => {
+               if (user?.id && story?.link) {
+                 logView({
+                   userId: user.id,
+                   content: {
+                     id: story.link,
+                     content_type: "article",
+                     title: story.title,
+                     url: story.link,
+                    // image_url: story.image_url,
+                     source: story.sourceLabel,
+                   },
+                 });
+               } else {
+                 console.warn("⛔ Missing user or story data", { user, story });
+               }
+             }}
       >
         <p>{story.title}</p>
         <span className="source">{story.sourceLabel}</span>

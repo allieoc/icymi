@@ -1,18 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./Header.css";
+import { Link, useLocation } from "react-router-dom";
 import { categories } from "../../data/categories";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../utils/supabaseClient";
-import { useSavedItems } from "../../context/SavedItemsContext"; // new context
+import { useSavedItems } from "../../context/SavedItemsContext";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef();
   const location = useLocation();
-  const hiddenPaths = ["/mellow", "/ready-to-listen", "/saved"];
+  const isFocusedPage = location.pathname === "/focused";
+  const hiddenPaths = ["/mellow", "/ready-to-listen", "/saved", "/profile"];
   const hideEverythingButLogo = hiddenPaths.includes(location.pathname);
+
   const { user } = useAuth();
   const name = user?.user_metadata?.name;
   const { savedCount } = useSavedItems();
@@ -27,91 +27,114 @@ export default function Header() {
         setMenuOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
   return (
-    <header className="site-header bg-indigo-950 text-white p-4">
-  <div className="w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
-  
-    {/* Logo + Hamburger */}
-    <div className="w-full flex items-center justify-between mb-2 md:mb-0">
-        <Link to="/" className="text-xl font-bold">
-            moodscroll
-          </Link>
+    <header className="bg-indigo-950 text-white p-4">
+      {/* Top bar */}
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        {/* Left section: logo + mood buttons */}
+        <div className="flex flex-col md:flex-row md:items-center md:gap-6 w-full">
+          <div className="flex items-center justify-between w-full md:w-auto">
+            <Link to="/" className="text-xl font-bold">moodscroll</Link>
 
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden flex flex-col justify-center items-center space-y-1"
-          >
-            <span className="block w-6 h-0.5 bg-white"></span>
-            <span className="block w-6 h-0.5 bg-white"></span>
-            <span className="block w-6 h-0.5 bg-white"></span>
-          </button>
-    </div>
-
-    {/* Greeting + Auth */}
-    <div className="w-full flex flex-col md::flex-row md:items-center space-y-4 md:space-y-0 md:gap-4 text-sm text-white text-center md:text-left">
-    {user && (
-        <>
-
-          <div className="flex justify-center md:justify-start gap-10">
-          <Link
-            to="/profile"
-            className="text-base font-medium hover:underline transition"
-          >
-            Hi, {name || user.email}!
-          </Link>
-            <button onClick={handleLogout} className="underline">
-              Log Out
-            </button>
-            <Link
-              to="/saved"
-              className="bg-indigo-500 text-white text-xs px-3 py-1 rounded-full hover:bg-indigo-600 transition"
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden flex flex-col justify-center items-center space-y-1"
             >
-              Saved ({savedCount})
-            </Link>
+              <span className="block w-6 h-0.5 bg-white"></span>
+              <span className="block w-6 h-0.5 bg-white"></span>
+              <span className="block w-6 h-0.5 bg-white"></span>
+            </button>
+          
           </div>
-        </>
-      )}
+          {/* Mood Buttons (desktop only) */}
+          <div className="hidden md:flex gap-3 mt-3 md:mt-0">
+            <Link to="/focused" className="bg-stone-400 ml-20 text-white text-xs px-3 py-1 rounded-full hover:bg-stone-600 transition">Focused</Link>
+            <Link to="/mellow" className="bg-blue-400 text-white text-xs px-3 py-1 rounded-full hover:bg-blue-600 transition">Mellow</Link>
+            <Link to="/ready-to-listen" className="bg-purple-500 text-white text-xs px-3 py-1 rounded-full hover:bg-purple-600 transition">Ready to Listen</Link>
+          </div>
+        </div>
 
-      {!user && (
-        <div className="flex gap-2 justify-center md:justify-start">
-          <Link to="/login" className="underline">
-            Log In
-          </Link>
-          <Link to="/signup" className="underline">
-            Sign Up
-          </Link>
+        {/* Right section: user info */}
+        <div className="w-full flex flex-wrap items-center justify-between gap-4 md:justify-end md:flex-nowrap md:gap-6 text-sm text-white mt-2 md:mt-0">
+          {user ? (
+            <>
+              <Link to="/profile" className="font-medium hover:underline">
+                Hi, {name || user.email}!
+              </Link>
+              <button onClick={handleLogout} className="underline">
+                Log Out
+              </button>
+              <Link
+                to="/saved"
+                className="bg-indigo-500 text-white text-xs px-3 py-1 rounded-full hover:bg-indigo-600 transition"
+              >
+                Saved ({savedCount})
+              </Link>
+
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="underline">Log In</Link>
+              <Link to="/signup" className="underline">Sign Up</Link>
+            </>
+          )}
+        </div>
+</div>
+     {/* Hamburger menu nav */}
+{!hideEverythingButLogo && (
+  <nav
+    ref={navRef}
+    className={`mt-4 ${menuOpen ? "block" : "hidden"} md:block`}
+  >
+    <div className="flex flex-col gap-2 md:flex-row md:space-x-4">
+      
+      {/* Mood Links - always show on mobile */}
+      <div className="md:hidden mb-4 space-y-1">
+        <Link
+          to="/focused"
+          onClick={() => setMenuOpen(false)}
+          className="block text-sm text-white hover:text-stone-300"
+        >
+          📰 Focused
+        </Link>
+        <Link
+          to="/mellow"
+          onClick={() => setMenuOpen(false)}
+          className="block text-sm text-white hover:text-blue-200"
+        >
+          🌈 Mellow
+        </Link>
+        <Link
+          to="/ready-to-listen"
+          onClick={() => setMenuOpen(false)}
+          className="block text-sm text-white hover:text-purple-300"
+        >
+          🎧 Ready to Listen
+        </Link>
+      </div>
+
+      {/* Category Links - only on Focused page */}
+      {isFocusedPage && (
+        <div className="space-y-1 md:space-y-0 md:flex md:space-x-4">
+          {Object.values(categories).map(({ slug, title }) => (
+            <Link
+              key={slug}
+              to={`/category/${slug}`}
+              onClick={() => setMenuOpen(false)}
+              className="block text-sm text-white hover:text-stone-300"
+            >
+              {title}
+            </Link>
+          ))}
         </div>
       )}
     </div>
-  </div>
-
-  {/* Nav menu */}
-  {!hideEverythingButLogo && (
-    <nav
-      ref={navRef}
-      className={`mt-4 ${menuOpen ? "block" : "hidden"} md:block`}
-    >
-      <div className="flex flex-col md:flex-row md:space-x-4">
-        {Object.values(categories).map(({ slug, title }) => (
-          <Link
-            key={slug}
-            to={`/category/${slug}`}
-            onClick={() => setMenuOpen(false)}
-            className="nav-link"
-          >
-            {title}
-          </Link>
-        ))}
-      </div>
-    </nav>
-  )}
-</header>
-
-
+  </nav>
+)}
+    </header>
   );
 }

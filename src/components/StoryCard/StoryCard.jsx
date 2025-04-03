@@ -3,7 +3,7 @@ import "./StoryCard.css";
 import decodeHtml from "../../utils/decodeHtml";
 import fallbackImage from "../../utils/fallbackImage";
 
-export default function StoryCard({ story, isFeatured = false, isCompact = false, hideImage }) {
+export default function StoryCard({ story, isFeatured = false, isCompact = false, hideImage, onClick }) {
   if (!story) return null;
 
   const { title, description, link, image_url, sourceLabel } = story;
@@ -43,7 +43,7 @@ export default function StoryCard({ story, isFeatured = false, isCompact = false
   
 
   return (
-    <div className="story-wrapper">
+    <div className="story-wrapper" onClick={onClick}> 
     <a
       href={link}
       className={`story-card ${isFeatured ? "featured" : ""} ${isCompact ? "compact" : ""}`}

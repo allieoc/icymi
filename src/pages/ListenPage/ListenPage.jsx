@@ -4,6 +4,8 @@ import { useRef } from "react";
 import { usePlayer } from "../../context/PlayerContext";
 import {formatTime} from "../../utils/formatTime";
 import SaveButton from "../../components/SaveButton/SaveButton";
+import { logView } from "../../utils/logView";
+import { useAuth } from "../../context/AuthContext";
 
 
 export default function ListenPage() {
@@ -12,6 +14,7 @@ export default function ListenPage() {
   const [loading, setLoading] = useState(true);
   const carouselRef = useRef(null);
   const { expandPlayer, duration, currentTime, playTrack, track, isPlaying, handleScrub } = usePlayer();
+  const { user } = useAuth();
 
 
   function scrollCarousel(direction) {
@@ -76,6 +79,7 @@ export default function ListenPage() {
     loadContent();
   }, []);
 
+
   return (
     <div className="tunedin-page">
       <h1>Press Play 🎧</h1>
@@ -99,6 +103,23 @@ export default function ListenPage() {
                   href={video.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => {
+                          if (user?.id && story?.link) {
+                            logView({
+                              userId: user.id,
+                              content: {
+                                id: story.link,
+                                content_type: "article",
+                                title: story.title,
+                                url: story.link,
+                               // image_url: story.image_url,
+                                source: story.sourceLabel,
+                              },
+                            });
+                          } else {
+                            console.warn("⛔ Missing user or story data", { user, story });
+                          }
+                        }}
                 >
                   <img src={video.thumbnail} alt={video.title} className="video-thumbnail" />
                   <p className="video-title">{video.title}</p>
@@ -134,8 +155,25 @@ export default function ListenPage() {
             title: podcast.title,
             channel: podcast.sourceLabel,
             audioUrl: podcast.audioUrl,
-          });
-          expandPlayer(); // Show full player
+            })
+            expandPlayer(); // Show full player
+            if (user?.id && podcast?.link) {
+              logView({
+                userId: user.id,
+                content: {
+                  id: podcast.link,
+                  content_type: "podcast",
+                  title: podcast.title,
+                  url: podcast.link,
+                  image_url: podcast.image_url,
+                  source: podcast.sourceLabel,
+                },
+              });
+            } else {
+              console.warn("⛔ Missing user or story data", { user, story });
+            }
+                  
+           
         }}
         >
         {podcast.image_url && (
@@ -146,6 +184,8 @@ export default function ListenPage() {
 
         {podcast.sourceLabel && (
           <p className="source-label">{podcast.sourceLabel}</p>
+
+          
         )}
 
       {/* SaveButton: stopPropagation so it doesn't trigger the play */}
