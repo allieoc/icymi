@@ -1,8 +1,7 @@
-const fetch = require("node-fetch");
-const Parser = require("rss-parser");
+import Parser from "rss-parser";
 const parser = new Parser();
 
-exports.handler = async () => {
+export async function handler() {
   try {
     const sources = [
       "https://feeds.npr.org/1001/rss.xml",
@@ -31,7 +30,6 @@ exports.handler = async () => {
       })
     );
 
-    // Flatten and deduplicate
     const flat = allStories.flat();
     const seen = new Set();
     const deduped = flat.filter((story) => {
@@ -45,9 +43,10 @@ exports.handler = async () => {
       body: JSON.stringify(deduped),
     };
   } catch (err) {
+    console.error("❌ Error in fetchTopStories:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: "Failed to fetch top stories." }),
     };
   }
-};
+}

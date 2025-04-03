@@ -52,7 +52,14 @@ export default function FocusedPage() {
   useEffect(() => {
     async function fetchNews() {
       try {
-        const [top, politics, world, business, health, trending] = await Promise.all([
+        const [
+          topResponse,
+          politicsResponse,
+          worldResponse,
+          businessResponse,
+          healthResponse,
+          trendingResponse
+        ] = await Promise.all([
           fetch("/.netlify/functions/fetchTopStories").then((res) => res.json()),
           fetch("/.netlify/functions/fetchPolitics").then((res) => res.json()),
           fetch("/.netlify/functions/fetchWorld").then((res) => res.json()),
@@ -60,39 +67,48 @@ export default function FocusedPage() {
           fetch("/.netlify/functions/fetchHealthScience").then((res) => res.json()),
           fetch("/.netlify/functions/fetchTrending").then((res) => res.json()),
         ]);
-
-        const interleavedTop = interleaveBySource(top);
+  
+        // 🪵 Logging each response
+        console.log("🧪 Top Stories:", topResponse);
+        console.log("🧪 Is topResponse array?", Array.isArray(topResponse));
+        console.log("🧪 Politics:", politicsResponse);
+        console.log("🧪 World:", worldResponse);
+        console.log("🧪 Business:", businessResponse);
+        console.log("🧪 Health:", healthResponse);
+        console.log("🧪 Trending:", trendingResponse);
+  
+        // Interleave & enhance top stories
+        const interleavedTop = interleaveBySource(topResponse);
         const enhancedTop = await Promise.all(
           interleavedTop.slice(0, 6).map(async (story) => ({
             ...story,
             image_url: await getStoryImage(story),
           }))
         );
-        
-
+  
         setFeaturedStory(enhancedTop[0]);
         setSideStories(enhancedTop.slice(1));
-        setPoliticsNews(interleaveBySource(politics));
-        setWorldNews(interleaveBySource(world));
-        setBusinessTechNews(interleaveBySource(business));
-        setHealthScienceNews(interleaveBySource(health));
-        setTrendingNews(interleaveBySource(trending));
-
-        // Update context
+        setPoliticsNews(interleaveBySource(politicsResponse));
+        setWorldNews(interleaveBySource(worldResponse));
+        setBusinessTechNews(interleaveBySource(businessResponse));
+        setHealthScienceNews(interleaveBySource(healthResponse));
+        setTrendingNews(interleaveBySource(trendingResponse));
+  
         setNewsState({
-          politics,
-          world,
-          business,
-          health,
-          trending,
+          politics: politicsResponse,
+          world: worldResponse,
+          business: businessResponse,
+          health: healthResponse,
+          trending: trendingResponse,
         });
       } catch (err) {
         console.error("❌ Error fetching focused page news:", err);
       }
     }
-
+  
     fetchNews();
   }, []);
+  
 
   const renderStory = (story) => (
     <div key={story.link} className="section-block-story">
