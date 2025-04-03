@@ -68,15 +68,6 @@ export default function FocusedPage() {
           fetch("/.netlify/functions/fetchTrending").then((res) => res.json()),
         ]);
   
-        // 🪵 Logging each response
-        console.log("🧪 Top Stories:", topResponse);
-        console.log("🧪 Is topResponse array?", Array.isArray(topResponse));
-        console.log("🧪 Politics:", politicsResponse);
-        console.log("🧪 World:", worldResponse);
-        console.log("🧪 Business:", businessResponse);
-        console.log("🧪 Health:", healthResponse);
-        console.log("🧪 Trending:", trendingResponse);
-  
         // Interleave & enhance top stories
         const interleavedTop = interleaveBySource(topResponse);
         const enhancedTop = await Promise.all(

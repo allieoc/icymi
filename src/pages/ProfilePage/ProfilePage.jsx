@@ -5,19 +5,20 @@ import { supabase } from "../../utils/supabaseClient";
 import { useSavedItems } from "../../context/SavedItemsContext";
 import { Link } from "react-router-dom";
 import PodcastCard from "../../components/PodcastCard/PodcastCard";
+import FriendsList from "../../components/FriendsList/FriendsList";
+import AddFriendButton from "../../components/AddFriendButton/AddFriendButton";
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
-  const [friends, setFriends] = useState([]);
   const [uploadErrorMsg, setUploadErrorMsg] = useState("");
-  const [editing, setEditing] = useState(false);
   const [editedUsername, setEditedUsername] = useState("");
   const [editedBio, setEditedBio] = useState("");
   const [editingField, setEditingField] = useState(null); // "username" | "bio" | null
   const [savedItems, setSavedItems] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const { savedArticles = [], savedPodcasts = [] } = useSavedItems();
+  const [friends, setFriends] = useState([]);
 
 
   useEffect(() => {
@@ -39,24 +40,6 @@ export default function ProfilePage() {
         setProfile(data);
         setEditedUsername(data.username || "");
         setEditedBio(data.bio || "");
-      }
-    };
-
-    const fetchFriends = async () => {
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("friends")
-        .select("friend_id")
-        .eq("user_id", user.id);
-
-      if (!error) {
-        const friendIds = data.map((f) => f.friend_id);
-        const { data: friendProfiles } = await supabase
-          .from("profiles")
-          .select("id, username, avatar_url")
-          .in("id", friendIds);
-        setFriends(friendProfiles || []);
       }
     };
 
@@ -96,7 +79,6 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-    fetchFriends();
     fetchSavedItems();
     fetchRecentlyViewed();
 
@@ -202,7 +184,7 @@ export default function ProfilePage() {
   const combinedSaved = [...savedArticles, ...savedPodcasts]
   .sort((a, b) => new Date(b.saved_at) - new Date(a.saved_at))
   .slice(0, 4);
-  
+
 
   if (!user) return <p className="p-6 text-indigo-950 min-h-screen">Please log in to view your profile.</p>;
 
@@ -239,7 +221,12 @@ export default function ProfilePage() {
   
         {/* Profile Info */}
         <div className="flex-1">
-          <h1 className="text-2xl font-bold mb-4 text-indigo-950">Your Profile</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-indigo-950">Your Profile</h1>
+            {profile?.id !== user?.id && (
+              <AddFriendButton targetUserId={profile?.id} />
+            )}
+          </div>
   
           {profile && (
             <div className="mb-6 p-4 rounded text-white">
@@ -253,7 +240,7 @@ export default function ProfilePage() {
                   onBlur={handleSave}
                   onKeyDown={handleKeyDown}
                   autoFocus
-                  className="bg-zinc-700 text-white p-1 rounded w-full"
+                  className="bg-white text-indigo-950 rounded w-full"
                 />
                 
                 ) : (
@@ -275,7 +262,7 @@ export default function ProfilePage() {
                   onBlur={handleSave}
                   onKeyDown={handleKeyDown}
                   autoFocus
-                  className="bg-zinc-700 text-indigo-950 p-1 rounded w-full resize-none"
+                  className="bg-white text-indigo-950 p-1 rounded w-full resize-none"
                   rows={2}
                 />
                 
@@ -297,24 +284,10 @@ export default function ProfilePage() {
       </div>
   
       {/* Friends Section */}
+      
       <h2 className="text-xl font-semibold text-indigo-950 mb-2 mt-4">Friends</h2>
       <div className="grid grid-cols-2 gap-4 mb-4">
-        {friends.length > 0 ? (
-          friends.map((friend) => (
-            <div key={friend.id} className="bg-zinc-700 p-3 rounded text-white">
-              {friend.avatar_url && (
-                <img
-                  src={friend.avatar_url}
-                  alt={friend.username}
-                  className="w-12 h-12 rounded-full mb-1"
-                />
-              )}
-              <p className="text-sm">{friend.username}</p>
-            </div>
-          ))
-        ) : (
-          <p className="col-span-2 text-sm text-zinc-400">No friends yet.</p>
-        )}
+        <FriendsList />
       </div>
 
       {/* Saved Items */}
