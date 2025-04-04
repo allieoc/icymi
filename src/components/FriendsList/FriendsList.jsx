@@ -1,82 +1,83 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
-import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
+import { supabase } from '../../utils/supabaseClient';
+import { useAuth } from '../../context/AuthContext';
 
-export default function FriendsList({ onLoad }) {
-    const [friends, setFriends] = useState([]);
-    const { user } = useAuth();
+export default function FriendsList() {
+  const { user } = useAuth();
+  const [friends, setFriends] = useState([]);
 
+  const gradientClasses = [
+    "from-blue-400 to-indigo-500",
+    "from-purple-500 to-pink-500",
+    "from-green-400 to-blue-500",
+    "from-yellow-400 to-red-500",
+    "from-pink-400 to-purple-600",
+  ];
 
-    // Gradient color palette
-    const gradients = [
-        "from-pink-400 to-red-500",
-        "from-green-400 to-blue-500",
-        "from-yellow-400 to-pink-500",
-        "from-purple-400 to-indigo-500",
-        "from-blue-400 to-cyan-500",
-        "from-rose-400 to-pink-500",
-    ];
-    
-    function getRandomGradient(seed) {
-        const index = seed % gradients.length;
-        return gradients[index];
-    }
-  
-    useEffect(() => {
-      const fetchFriends = async () => {
-        if (!user) return;
-        const { data, error } = await supabase
-          .from("friends")
-          .select("friend_id")
-          .eq("user_id", user.id);
-  
-        if (!error) {
-          const friendIds = data.map((f) => f.friend_id);
-          const { data: friendProfiles } = await supabase
-            .from("profiles")
-            .select("id, username, avatar_url, full_name")
-            .in("id", friendIds);
-  
-          setFriends(friendProfiles || []);
-  
-          // 👇 Send data up to parent
-          if (onLoad) {
-            onLoad(friendProfiles || []);
-          }
-        }
-      };
-  
-      fetchFriends();
-    }, [user, onLoad]);
+  useEffect(() => {
+    if (!user) return;
 
-  if (!friends.length) {
-    return <p className="text-zinc-400">No friends yet.</p>;
-  }
+    const fetchFriends = async () => {
+      const { data, error } = await supabase
+        .from("friends")
+        .select("friend_id")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("❌ Error fetching friend_ids:", error);
+        return;
+      }
+
+      const friendIds = data.map((f) => f.friend_id);
+      console.log("🎯 friendIds:", friendIds);
+
+      if (friendIds.length === 0) {
+        setFriends([]);
+        return;
+      }
+
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, username, avatar_url, name")
+        .in("id", friendIds);
+
+      if (profilesError) {
+        console.error("❌ Error fetching friend profiles:", profilesError);
+      } else {
+        setFriends(profiles || []);
+      }
+    };
+
+    fetchFriends();
+  }, [user]);
 
   return (
-    <div className="flex gap-4 overflow-x-auto py-2">
-      {friends.map((friend, idx) => {
-        const hasAvatar = !!friend.avatar_url;
-        const name = friend.full_name || "";
-        const firstInitial = name.charAt(0).toUpperCase();
-        const gradient = getRandomGradient(idx); // Stable gradient per friend index
+    <div className="flex overflow-x-auto gap-4 py-2">
+      {friends.map((friend, index) => {
+        const hasAvatar = friend.avatar_url;
+        const initial = friend.full_name?.[0]?.toUpperCase() || "";
+        const gradient = gradientClasses[index % gradientClasses.length];
 
         return (
-          <div key={friend.id} className="flex flex-col items-center min-w-[60px]">
+          <Link to={`/profile/${friend.id}`} key={friend.id}>
             {hasAvatar ? (
               <img
                 src={friend.avatar_url}
-                alt={name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                alt={friend.username || "Friend"}
+                className="w-12 h-12 rounded-full object-cover"
               />
             ) : (
               <div
-                className={`w-12 h-12 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-lg font-semibold`}
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-semibold bg-gradient-to-br ${gradient}`}
               >
-                {firstInitial || ""}
+                {initial || ""}
               </div>
             )}
-          </div>
+              {friend.username && (
+              <p className="text-xs text-indigo-950 mt-1">{friend.username}</p>
+            )}
+          </Link>
         );
       })}
     </div>

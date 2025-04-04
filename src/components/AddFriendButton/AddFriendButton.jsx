@@ -1,9 +1,9 @@
 // components/AddFriendButton.jsx
 import { useState, useEffect } from "react";
-import { supabase } from "../utils/supabaseClient";
-import { useAuth } from "../context/AuthContext";
+import { supabase } from '../../utils/supabaseClient';
+import { useAuth } from '../../context/AuthContext';
 
-export default function AddFriendButton({ targetUserId }) {
+export default function AddFriendButton({ targetUserId, onFriendAdded }) {
   const { user } = useAuth();
   const [isFriend, setIsFriend] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,11 +33,12 @@ export default function AddFriendButton({ targetUserId }) {
       .from("friends")
       .insert([{ user_id: user.id, friend_id: targetUserId }]);
 
-    if (error) {
-      console.error("❌ Error adding friend:", error);
-    } else {
-      setIsFriend(true);
-    }
+      if (error) {
+        console.error("❌ Error adding friend:", error);
+      } else {
+        console.log("✅ Friend added!");
+        if (onFriendAdded) onFriendAdded(); // 🔁 Trigger refresh
+      }
     setLoading(false);
   };
 

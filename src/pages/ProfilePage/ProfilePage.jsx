@@ -19,6 +19,8 @@ export default function ProfilePage() {
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const { savedArticles = [], savedPodcasts = [] } = useSavedItems();
   const [friends, setFriends] = useState([]);
+  const [friendRefreshKey, setFriendRefreshKey] = useState(0);
+
 
 
   useEffect(() => {
@@ -224,9 +226,18 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-indigo-950">Your Profile</h1>
             {profile?.id !== user?.id && (
-              <AddFriendButton targetUserId={profile?.id} />
+              <AddFriendButton 
+              targetUserId={profile?.id} 
+              onFriendAdded={() => setFriendRefreshKey((prev) => prev + 1)} 
+            />
             )}
           </div>
+          <Link
+          to={`/inbox`}
+          className="bg-indigo-500 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-600 transition"
+          >
+          Inbox
+          </Link>
   
           {profile && (
             <div className="mb-6 p-4 rounded text-white">
@@ -287,9 +298,10 @@ export default function ProfilePage() {
       
       <h2 className="text-xl font-semibold text-indigo-950 mb-2 mt-4">Friends</h2>
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <FriendsList />
-      </div>
+          <FriendsList refreshTrigger={friendRefreshKey} />
 
+      </div>
+      
       {/* Saved Items */}
 
         <h1 className="text-xl font-semibold text-indigo-950">⭐️ Saved</h1>
