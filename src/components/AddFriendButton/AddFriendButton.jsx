@@ -1,58 +1,95 @@
 // components/AddFriendButton.jsx
-import { useState, useEffect } from "react";
-import { supabase } from '../../utils/supabaseClient';
-import { useAuth } from '../../context/AuthContext';
+import { useEffect, useState } from "react";
+import { supabase } from "../../utils/supabaseClient";
+import { useAuth } from "../../context/AuthContext";
 
-export default function AddFriendButton({ targetUserId, onFriendAdded }) {
+export default function AddFriendButton({ targetUserId, onStatusChange }) {
   const { user } = useAuth();
-  const [isFriend, setIsFriend] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null); // null | pending | accepted | none
+  const [incomingRequest, setIncomingRequest] = useState(false);
 
   useEffect(() => {
-    const checkIfFriend = async () => {
-      if (!user || !targetUserId) return;
+    if (!user || !targetUserId) return;
 
+    const fetchFriendship = async () => {
       const { data, error } = await supabase
         .from("friends")
         .select("*")
-        .eq("user_id", user.id)
-        .eq("friend_id", targetUserId)
-        .maybeSingle();
-
-      if (data) setIsFriend(true);
-    };
-
-    checkIfFriend();
-  }, [user, targetUserId]);
-
-  const handleAddFriend = async () => {
-    if (!user || !targetUserId) return;
-    setLoading(true);
-
-    const { error } = await supabase
-      .from("friends")
-      .insert([{ user_id: user.id, friend_id: targetUserId }]);
+        .or(
+          `and(user_id.eq.${user.id},friend_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_id.eq.${user.id})`
+        );
 
       if (error) {
-        console.error("❌ Error adding friend:", error);
-      } else {
-        console.log("✅ Friend added!");
-        if (onFriendAdded) onFriendAdded(); // 🔁 Trigger refresh
+        console.error("❌ Error fetching friend status:", error);
+        return;
       }
-    setLoading(false);
+
+      if (data.length === 0) {
+        setStatus("none");
+      } else {
+        const record = data[0];
+        setStatus(record.status);
+        if (record.friend_id === user.id && record.status === "pending") {
+          setIncomingRequest(true);
+        }
+      }
+    };
+
+    fetchFriendship();
+  }, [user, targetUserId]);
+
+  const sendRequest = async () => {
+    const { error } = await supabase.from("friends").insert({
+      user_id: user.id,
+      friend_id: targetUserId,
+      status: "pending",
+      requested_at: new Date().toISOString(),
+    });
+
+    if (!error) {
+      setStatus("pending");
+      onStatusChange?.("pending");
+    } else {
+      console.error("❌ Error sending friend request:", error);
+    }
   };
 
-  if (isFriend) {
-    return <button className="text-xs bg-green-200 text-green-900 px-2 py-1 rounded-full" disabled>✓ Friend</button>;
+  const acceptRequest = async () => {
+    const { error } = await supabase
+      .from("friends")
+      .update({ status: "accepted", accepted_at: new Date().toISOString() })
+      .eq("user_id", targetUserId)
+      .eq("friend_id", user.id)
+      .eq("status", "pending");
+
+    if (!error) {
+      setStatus("accepted");
+      setIncomingRequest(false);
+      onStatusChange?.("accepted");
+    } else {
+      console.error("❌ Error accepting friend request:", error);
+    }
+  };
+
+  if (status === "accepted") {
+    return <span className="text-sm text-green-600 font-medium">✅ Friends</span>;
+  }
+
+  if (incomingRequest) {
+    return (
+      <button onClick={acceptRequest} className="text-sm bg-green-500 text-white px-3 py-1 rounded">
+        Accept Friend
+      </button>
+    );
+  }
+
+  if (status === "pending") {
+    return <span className="text-sm text-yellow-600 font-medium">⏳ Pending</span>;
   }
 
   return (
-    <button
-      onClick={handleAddFriend}
-      disabled={loading}
-      className="text-xs bg-indigo-500 text-white px-2 py-1 rounded-full hover:bg-indigo-600 transition"
-    >
-      {loading ? "Adding..." : "Add Friend"}
+    <button onClick={sendRequest} className="text-sm bg-indigo-500 text-white px-3 py-1 rounded">
+      Add Friend
     </button>
   );
 }

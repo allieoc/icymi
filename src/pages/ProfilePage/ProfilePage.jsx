@@ -20,6 +20,7 @@ export default function ProfilePage() {
   const { savedArticles = [], savedPodcasts = [] } = useSavedItems();
   const [friends, setFriends] = useState([]);
   const [friendRefreshKey, setFriendRefreshKey] = useState(0);
+  const [hasFriends, setHasFriends] = useState(false);
 
 
 
@@ -295,12 +296,15 @@ export default function ProfilePage() {
       </div>
   
       {/* Friends Section */}
-      
       <h2 className="text-xl font-semibold text-indigo-950 mb-2 mt-4">Friends</h2>
-      <div className="grid grid-cols-2 gap-4 mb-4">
-          <FriendsList refreshTrigger={friendRefreshKey} />
 
-      </div>
+      {hasFriends ? (
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <FriendsList refreshTrigger={friendRefreshKey} setHasFriends={setHasFriends} />
+        </div>
+      ) : (
+        <p className="text-sm text-zinc-400 mb-4">You haven't added any friends yet.</p>
+      )}
       
       {/* Saved Items */}
 
