@@ -83,7 +83,8 @@ export default function ListenPage() {
         ...assemblyRequired
       ];
       const sorted = podcasts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-      setPodcastStories(sorted);
+      const finalPodcasts = sorted.splice(1, 30);
+      setPodcastStories(finalPodcasts);
       setSearchTerm(""); // Clear search on fresh load
       
 
