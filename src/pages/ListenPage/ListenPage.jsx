@@ -15,6 +15,7 @@ export default function ListenPage() {
   const carouselRef = useRef(null);
   const { expandPlayer, duration, currentTime, playTrack, track, isPlaying, handleScrub } = usePlayer();
   const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
 
 
   function scrollCarousel(direction) {
@@ -57,17 +58,35 @@ export default function ListenPage() {
   useEffect(() => {
     setLoading(true);
     async function loadContent() {
-      const [npr, theDaily, upFirst, pivot, todayExplained] = await Promise.all([
-        fetchFeed("nprnewsnow"),
+      const [theDaily, upFirst, pivot, todayExplained, podSaveAmerica, rachelMaddow, morningBrewDaily, whatNext, theDiaryOfACEO, assemblyRequired] = await Promise.all([
         fetchFeed("thedaily"),
         fetchFeed("upfirst"),
         fetchFeed("pivot"),
-        fetchFeed("todayexplained")
+        fetchFeed("todayexplained"),
+        fetchFeed("podsaveamerica"),
+        fetchFeed("therachelmaddowshow"),
+        fetchFeed("morningbrewdaily"),
+        fetchFeed("whatnext"),
+        fetchFeed("thediaryofaceo"),
+        fetchFeed("assemblyrequired")
       ]);
-
-      const podcasts = [...npr, ...theDaily, ...upFirst, ...pivot, ...todayExplained];
+      const podcasts = [
+        ...theDaily, 
+        ...upFirst, 
+        ...pivot, 
+        ...todayExplained, 
+        ...podSaveAmerica, 
+        ...rachelMaddow, 
+        ...morningBrewDaily, 
+        ...whatNext,
+        ...theDiaryOfACEO,
+        ...assemblyRequired
+      ];
       const sorted = podcasts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
       setPodcastStories(sorted);
+      setSearchTerm(""); // Clear search on fresh load
+      
+
 
       const videos = await fetchVideos();
       setVideoStories(videos);
@@ -78,6 +97,11 @@ export default function ListenPage() {
 
     loadContent();
   }, []);
+
+  const filteredPodcasts = podcastStories.filter(p =>
+    p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.sourceLabel?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
 
   return (
@@ -144,9 +168,20 @@ export default function ListenPage() {
             </button>
           </div>
 
+          <div className="search-bar-wrapper">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search for your favorite podcast..."
+              className="podcast-search-input"
+            />
+          </div>
+
+
         {/* Podcast grid */}
         <div className="podcast-grid">
-          {podcastStories.map((podcast, i) => (
+        {filteredPodcasts.map((podcast, i) => (
           <div
             className="podcast-card cursor-pointer"
             key={`${podcast.link}-${i}`}
@@ -184,10 +219,14 @@ export default function ListenPage() {
 
         {podcast.sourceLabel && (
           <p className="source-label">{podcast.sourceLabel}</p>
-
-          
         )}
 
+        <span className="pub-date">{new Date(podcast.pubDate).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}</span>
+        
       {/* SaveButton: stopPropagation so it doesn't trigger the play */}
       <div className="mt-5"
         onClick={(e) => e.stopPropagation()}

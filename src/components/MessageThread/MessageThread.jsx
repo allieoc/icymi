@@ -31,23 +31,57 @@ export default function MessageThread() {
     };
 
     fetchThread();
+
+    const channel = supabase
+      .channel('message-thread')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `sender_id=eq.${recipientId}`,
+        },
+        (payload) => {
+          const newMsg = payload.new;
+          if (
+            (newMsg.sender_id === recipientId && newMsg.recipient_id === user.id) ||
+            (newMsg.sender_id === user.id && newMsg.recipient_id === recipientId)
+          ) {
+            setMessages((prev) => [...prev, newMsg]);
+            scrollToBottom();
+          }
+        }
+      )
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(channel);
+    };
+
+    
   }, [user, recipientId]);
 
   useEffect(() => {
     const markAsRead = async () => {
-        const now = new Date().toISOString();
-      
         const { error } = await supabase
           .from("messages")
-          .update({ read: true, read_at: now })
+          .update({ read_at: new Date().toISOString() })
           .eq("recipient_id", user.id)
           .eq("sender_id", recipientId)
-          .is("read", false); // only update unread messages
-      
+          .is("read_at", null);
+    
         if (error) {
           console.error("❌ Failed to mark messages as read:", error);
+        } else {
+          // Trigger a re-fetch in the inbox (optional optimization)
+          // This would ideally update some global state or invalidate a query if you're using SWR/React Query/etc
         }
       };
+    
+      if (user?.id && recipientId) {
+        markAsRead();
+      }
   }, [user?.id, recipientId]);
 
   const scrollToBottom = () => {

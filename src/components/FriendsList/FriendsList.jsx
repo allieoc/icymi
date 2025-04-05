@@ -7,7 +7,6 @@ export default function FriendsList({ refreshTrigger, setHasFriends }) {
   const { user } = useAuth();
   const [friends, setFriends] = useState([]);
 
-  console.log("user ID in friendsList:", user?.id);
 
   useEffect(() => {
     if (!user?.id) {
@@ -16,7 +15,6 @@ export default function FriendsList({ refreshTrigger, setHasFriends }) {
     }
   
     const fetchFriends = async () => {
-      console.log("📡 Fetching accepted friends for:", user.id);
   
       const { data, error } = await supabase
         .from("friends")
@@ -30,7 +28,6 @@ export default function FriendsList({ refreshTrigger, setHasFriends }) {
       }
   
       const friendIds = data.map((f) => f.friend_id);
-      console.log("✅ Accepted friendIds:", friendIds);
   
       if (friendIds.length === 0) {
         setFriends([]);
@@ -46,7 +43,6 @@ export default function FriendsList({ refreshTrigger, setHasFriends }) {
       if (profilesError) {
         console.error("❌ Error fetching friend profiles:", profilesError);
       } else {
-        console.log("👯 Friend profiles:", profiles);
         setFriends(profiles || []);
         if (setHasFriends) {
           setHasFriends((profiles || []).length > 0);
