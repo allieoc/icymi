@@ -19,6 +19,7 @@ import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import UserProfilePage from "./pages/UserProfilePage/UserProfilePage";
 import MessagesInbox from "./pages/MessagesInbox/MessagesInbox";
 import MessageThread from "./components/MessageThread/MessageThread";
+import FriendSearch from "./components/FriendSearch/FriendSearch";
 
 
 function Layout({ children }) {
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="/profile/:id" element={<UserProfilePage />} />
             <Route path="/inbox" element={<MessagesInbox />} />
             <Route path="/messages/:userId" element={<MessageThread />} />
+            <Route path="/friend-search" element={<FriendSearch />} />
 
           </Routes>
         </Layout>

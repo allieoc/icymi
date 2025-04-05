@@ -327,6 +327,12 @@ export default function ProfilePage() {
   
   {/*Friends Section */}
       <h2 className="text-xl font-semibold text-indigo-950 mb-2 mt-4">Friends</h2>
+      <Link
+        to="/friend-search"
+        className="text-sm text-indigo-500 underline hover:text-indigo-700 mb-2 inline-block"
+      >
+        + Add More Friends
+      </Link>
 
       <FriendsList refreshTrigger={friendRefreshKey} setHasFriends={setHasFriends} />
 
