@@ -35,21 +35,19 @@ export default function MessageThread() {
 
   useEffect(() => {
     const markAsRead = async () => {
-      const { error } = await supabase
-        .from("messages")
-        .update({ read_at: new Date().toISOString() })
-        .eq("recipient_id", user.id)
-        .eq("sender_id", recipientId)
-        .is("read_at", null);
-
-      if (error) {
-        console.error("❌ Failed to mark messages as read:", error);
-      }
-    };
-
-    if (user?.id && recipientId) {
-      markAsRead();
-    }
+        const now = new Date().toISOString();
+      
+        const { error } = await supabase
+          .from("messages")
+          .update({ read: true, read_at: now })
+          .eq("recipient_id", user.id)
+          .eq("sender_id", recipientId)
+          .is("read", false); // only update unread messages
+      
+        if (error) {
+          console.error("❌ Failed to mark messages as read:", error);
+        }
+      };
   }, [user?.id, recipientId]);
 
   const scrollToBottom = () => {
@@ -76,6 +74,10 @@ export default function MessageThread() {
       console.error("❌ Error sending message:", error);
     }
   };
+
+  const lastReadMessageId = messages
+  .filter((m) => m.sender_id === user.id && m.read)
+  .slice(-1)[0]?.id;
 
   return (
     <div className="flex flex-col h-screen bg-white">
@@ -115,8 +117,8 @@ export default function MessageThread() {
                 <span className={isSender ? "text-zinc-200" : "text-zinc-500"}>
                   {timestamp}
                 </span>
-                {isSender && msg.read_at && (
-                  <span className="ml-2 text-white">✓ Read</span>
+                {isSender && msg.id === lastReadMessageId && (
+                <span className="ml-2 text-white">✓ Read</span>
                 )}
               </div>
             </div>

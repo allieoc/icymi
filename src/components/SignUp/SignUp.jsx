@@ -25,7 +25,7 @@ export default function Signup() {
 
       if (error) {
         console.error("Signup error:", error.message);
-        setErrorMsg("Signup failed. Try a different email.");
+        setErrorMsg("Signup failed.", error.message);
          } 
 
       const user = data?.user;
@@ -82,7 +82,9 @@ export default function Signup() {
       required
       className="p-2 rounded bg-zinc-700 text-white placeholder-zinc-400"
     />
-
+    <p className="text-xs text-zinc-500 mt-1">
+      Password must include lowercase, uppercase, number, and special character.
+    </p>
     {errorMsg && <p className="text-red-400 text-sm">{errorMsg}</p>}
 
     <button

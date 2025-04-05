@@ -21,8 +21,7 @@ export default function ProfilePage() {
   const [friends, setFriends] = useState([]);
   const [friendRefreshKey, setFriendRefreshKey] = useState(0);
   const [hasFriends, setHasFriends] = useState(false);
-
-
+  const [inboxCount, setInboxCount] = useState(0);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -88,7 +87,30 @@ export default function ProfilePage() {
     
   }, [user]);
 
-
+  useEffect(() => {
+    const fetchInboxCounts = async () => {
+      if (!user?.id) return;
+  
+      // Fetch unread messages
+      const { data: unreadMessages } = await supabase
+        .from("messages")
+        .select("id")
+        .eq("recipient_id", user.id)
+        .is("read_at", null);
+  
+      // Fetch pending friend requests
+      const { data: pendingRequests } = await supabase
+        .from("friends")
+        .select("id")
+        .eq("friend_id", user.id)
+        .eq("status", "pending");
+  
+      const count = (unreadMessages?.length || 0) + (pendingRequests?.length || 0);
+      setInboxCount(count);
+    };
+  
+    fetchInboxCounts();
+  }, [user]);
 
   const handleUpload = async (e) => {
     if (!user || !user.id) {
@@ -191,6 +213,8 @@ export default function ProfilePage() {
 
   if (!user) return <p className="p-6 text-indigo-950 min-h-screen">Please log in to view your profile.</p>;
 
+  console.log("🧩 FriendsList component rendered");
+
   return (
     <div className="p-6 text-indigo-950 max-w-2xl mx-auto min-h-screen">
       <div className="flex items-start gap-4">
@@ -234,11 +258,17 @@ export default function ProfilePage() {
             )}
           </div>
           <Link
-          to={`/inbox`}
-          className="bg-indigo-500 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-600 transition"
+            to="/inbox"
+            className="relative bg-indigo-500 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-600 transition inline-block"
           >
-          Inbox
+            Inbox
+            {inboxCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {inboxCount}
+              </span>
+            )}
           </Link>
+
   
           {profile && (
             <div className="mb-6 p-4 rounded text-white">
@@ -295,20 +325,19 @@ export default function ProfilePage() {
         </div>
       </div>
   
-      {/* Friends Section */}
+  {/*Friends Section */}
       <h2 className="text-xl font-semibold text-indigo-950 mb-2 mt-4">Friends</h2>
 
-      {hasFriends ? (
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <FriendsList refreshTrigger={friendRefreshKey} setHasFriends={setHasFriends} />
-        </div>
-      ) : (
+      <FriendsList refreshTrigger={friendRefreshKey} setHasFriends={setHasFriends} />
+
+      {!hasFriends && (
         <p className="text-sm text-zinc-400 mb-4">You haven't added any friends yet.</p>
       )}
+
       
       {/* Saved Items */}
 
-        <h1 className="text-xl font-semibold text-indigo-950">⭐️ Saved</h1>
+        <h1 className="text-xl font-semibold text-indigo-950 mt-4">⭐️ Saved</h1>
         {savedItems.length === 0 ? (
   <p className="text-sm text-zinc-400">You haven't saved anything yet. Go find something cool to come back to!</p>
 ) : (
@@ -323,6 +352,7 @@ export default function ProfilePage() {
                   .map(podcast => (
                     <PodcastCard
                       podcast={podcast}
+                      key={podcast.id}
                       onClick={() => {
                        logView({
                         userId: user.id,

@@ -34,6 +34,8 @@ export function AuthProvider({ children }) {
      } 
   }, [user]);
 
+console.log("👤 Auth user in FriendsList:", user);
+
   return (
     <AuthContext.Provider value={{ user, setUser }}>
       {children}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { categories } from "../../data/categories";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../utils/supabaseClient";
@@ -10,6 +10,7 @@ export default function Header() {
   const navRef = useRef();
   const location = useLocation();
   const isFocusedPage = location.pathname === "/focused";
+  const navigate = useNavigate();
 
   const { user } = useAuth();
   const name = user?.user_metadata?.name;
@@ -17,6 +18,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    navigate("/");
   };
 
   useEffect(() => {

@@ -11,6 +11,7 @@ export default function UserProfilePage() {
   const [isFriend, setIsFriend] = useState(false);
   const [sharedItems, setSharedItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [friendStatus, setFriendStatus] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -31,8 +32,9 @@ export default function UserProfilePage() {
           .eq("user_id", user.id)
           .eq("friend_id", id)
           .maybeSingle();
-
-        setIsFriend(!!friendData);
+      
+        setFriendStatus(friendData?.status || null);
+        setIsFriend(friendData?.status === "accepted");
       }
     };
 
@@ -87,20 +89,22 @@ export default function UserProfilePage() {
           <div className="flex items-center gap-4 mb-2">
             <h1 className="text-2xl font-bold">{profile.username || profile.name}</h1>
             {user && user.id !== profile.id && (
-              isFriend ? (
-                <div className="flex gap-2 mt-2 items-center">
+                friendStatus === "accepted" ? (
+                    <div className="flex gap-2 mt-2 items-center">
                     <span className="text-sm bg-green-500 text-white px-4 py-2 rounded-full">Friends</span>
                     <Link
-                    to={`/messages/${profile.id}`}
-                    className="bg-indigo-500 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-600 transition"
+                        to={`/messages/${profile.id}`}
+                        className="bg-indigo-500 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-600 transition"
                     >
-                    Message
+                        Message
                     </Link>
                     </div>
-              ) : (
-                  <AddFriendButton targetUserId={profile.id} />                           
-              )
-            )}
+                ) : friendStatus === "pending" ? (
+                    <span className="text-sm bg-orange-400 text-white px-4 py-2 rounded-full">Request Pending</span>
+                ) : (
+                    <AddFriendButton targetUserId={profile.id} />
+                )
+                )}
           </div>
           {profile.bio && <p className="text-sm text-zinc-700 whitespace-pre-line">{profile.bio}</p>}
         </div>

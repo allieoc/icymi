@@ -12,7 +12,7 @@ function Footer() {
 
     <div className="footer-meta">
       <p>Powered by NPR, BBC, Reddit, and more.</p>
-      <p>&copy; {new Date().getFullYear()} Moodscroll</p>
+      <p>&copy; {new Date().getFullYear()} AO Creative</p>
     </div>
   </div>
 </footer>
