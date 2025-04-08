@@ -141,9 +141,9 @@ useEffect(() => {
                     {msg.threadWith.username?.[0]?.toUpperCase() || "?"}
                 </div>
                 )}
-                <div className="flex-1">
+                <div className="flex flex-col gap-4 overflow-x-hidden break-words">
                 <p className="font-semibold">{msg.threadWith.username || "Unknown User"}</p>
-                <p className="text-sm text-zinc-600 truncate">{msg.content}</p>
+                <p className="text-sm text-zinc-600 break-words overflow-hidden">{msg.content}</p>
                 <p className="text-xs text-zinc-400 mt-1">
                     {new Date(msg.sent_at).toLocaleString()}
                 </p>
