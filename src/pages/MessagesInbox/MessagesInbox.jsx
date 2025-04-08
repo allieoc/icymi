@@ -116,7 +116,7 @@ useEffect(() => {
   if (!user) return <p className="p-6">Please log in to view your messages.</p>;
 
   return (
-    <div className="p-6 max-w-2xl mx-auto text-indigo-950 min-h-screen">
+    <div className="p-6 max-w-2xl mx-auto text-indigo-950 min-h-screen overflow-x-hidden break-words">
       <h1 className="text-2xl font-bold mb-4">📨 Messages</h1>
       {loading ? (
         <p>Loading messages...</p>
@@ -137,7 +137,7 @@ useEffect(() => {
                     className="w-12 h-12 rounded-full object-cover"
                 />
                 ) : (
-                <div className="w-12 h-12 rounded-full bg-indigo-300 flex items-center justify-center text-white font-bold text-lg">
+                <div className="w-12 h-12 rounded-full bg-indigo-300 flex items-center justify-center text-white font-bold text-lg overflow-x-hidden break-words">
                     {msg.threadWith.username?.[0]?.toUpperCase() || "?"}
                 </div>
                 )}
