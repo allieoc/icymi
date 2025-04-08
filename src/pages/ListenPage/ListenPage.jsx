@@ -6,6 +6,8 @@ import {formatTime} from "../../utils/formatTime";
 import SaveButton from "../../components/SaveButton/SaveButton";
 import { logView } from "../../utils/logView";
 import { useAuth } from "../../context/AuthContext";
+import SharePopup from "../../components/SharePopup/SharePopup";
+
 
 
 export default function ListenPage() {
@@ -16,6 +18,7 @@ export default function ListenPage() {
   const { expandPlayer, duration, currentTime, playTrack, track, isPlaying, handleScrub } = usePlayer();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  const [shareItem, setShareItem] = useState(null);
 
 
   function scrollCarousel(direction) {
@@ -145,7 +148,11 @@ export default function ListenPage() {
                             console.warn("⛔ Missing user or story data", { user, story });
                           }
                         }}
-                >
+                          >
+
+        
+
+
                   <img src={video.thumbnail} alt={video.title} className="video-thumbnail" />
                   <p className="video-title">{video.title}</p>
                   <div className="video-meta">
@@ -156,9 +163,36 @@ export default function ListenPage() {
                       year: 'numeric'
                     })}</span>
 
+                  
+              
                   </div>
                 </a>
-
+                <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShareItem({ type: "video", item: video }); 
+                    }}
+                    
+                    className="absolute bottom-2 right-2 text-indigo-300 hover:bg-indigo-300 hover:text-white"
+                    title="Share"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="lucide lucide-share"
+                    >
+                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                      <polyline points="16 6 12 2 8 6" />
+                      <line x1="12" y1="2" x2="12" y2="15" />
+                    </svg>
+                  </button>
 
                 </div>
               ))}
@@ -212,6 +246,33 @@ export default function ListenPage() {
            
         }}
         >
+          <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setShareItem({ type: "podcast", item: podcast });
+        }}
+        className="absolute bottom-2 right-2 text-indigo-300 hover:bg-indigo-300 hover:text-white"
+        title="Share"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="lucide lucide-share"
+        >
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+          <polyline points="16 6 12 2 8 6" />
+          <line x1="12" y1="2" x2="12" y2="15" />
+        </svg>
+      </button>
+      
+
         {podcast.image_url && (
           <img src={podcast.image_url} alt={podcast.title} />
         )}
@@ -240,6 +301,13 @@ export default function ListenPage() {
 </div> 
       </>
     )}
+    {shareItem && (
+  <SharePopup
+    url={shareItem.item.link}
+    title={shareItem.item.title}
+    onClose={() => setShareItem(null)}
+  />
+)}
   </div>
 ); 
 } 

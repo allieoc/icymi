@@ -6,6 +6,8 @@ import { useAuth } from "../../context/AuthContext";
 import { NewsContext } from "../../context/NewsContext";
 import defaultImage from "../../assets/featured-story.png";
 import "./FocusedPage.css"
+import SharePopup from "../../components/SharePopup/SharePopup";
+
 
 export default function FocusedPage() {
   const { user } = useAuth();
@@ -17,6 +19,7 @@ export default function FocusedPage() {
   const [businessTechNews, setBusinessTechNews] = useState([]);
   const [healthScienceNews, setHealthScienceNews] = useState([]);
   const [trendingNews, setTrendingNews] = useState([]);
+  const [showShare, setShowShare] = useState(false);
 
   const getStoryImage = async (story) => {
     return story.image_url?.trim() ? story.image_url : defaultImage;
@@ -102,12 +105,10 @@ export default function FocusedPage() {
   
 
   const renderStory = (story) => (
-    <div key={story.link} className="section-block-story">
-      <a
-        href={story.link}
-        className="headline"
-        target="_blank"
-        rel="noopener noreferrer"
+    <div key={story.link} className="section-block-story relative">
+      <StoryCard
+        story={story}
+        isCompact={true}
         onClick={() => {
           if (user?.id && story?.link) {
             logView({
@@ -122,14 +123,11 @@ export default function FocusedPage() {
             });
           }
         }}
-      >
-        <p>{story.title}</p>
-        <span className="source">{story.sourceLabel}</span>
-      </a>
+      />
       <SaveButton className="save-btn" story={story} />
     </div>
   );
-
+  
   return (
     <div className="focused-page">
       <section className="top-stories">
@@ -157,6 +155,7 @@ export default function FocusedPage() {
                   }}
                 />
                 <SaveButton className="save-btn" story={featuredStory} />
+            
               </>
             )}
           </div>
@@ -183,6 +182,7 @@ export default function FocusedPage() {
                   }}
                 />
                 <SaveButton className="save-btn" story={story} />
+               
               </div>
             ))}
           </div>

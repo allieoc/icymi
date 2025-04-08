@@ -12,6 +12,10 @@ export default function MessageThread() {
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef();
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
     if (!user || !recipientId) return;
 
@@ -31,6 +35,9 @@ export default function MessageThread() {
     };
 
     fetchThread();
+
+   
+      
 
     const channel = supabase
       .channel('message-thread')
@@ -84,9 +91,7 @@ export default function MessageThread() {
       }
   }, [user?.id, recipientId]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+
 
   const handleSend = async () => {
     if (!newMessage.trim()) return;
@@ -113,6 +118,19 @@ export default function MessageThread() {
   .filter((m) => m.sender_id === user.id && m.read)
   .slice(-1)[0]?.id;
 
+  function linkifyText(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlRegex).map((part, i) =>
+      urlRegex.test(part) ? (
+        <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-indigo-950 underline">
+          {part}
+        </a>
+      ) : (
+        part
+      )
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
@@ -127,37 +145,39 @@ export default function MessageThread() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {messages.map((msg, index) => {
-          const isSender = msg.sender_id === user.id;
-          const timestamp = msg.sent_at
-            ? new Date(msg.sent_at).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "";
+      {messages.map((msg, index) => {
+  const isSender = msg.sender_id === user.id;
+  const timestamp = msg.sent_at
+    ? new Date(msg.sent_at).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
 
-          return (
-            <div
-              key={index}
-              className={`max-w-[70%] px-3 py-2 rounded-lg ${
-                isSender
-                  ? "bg-indigo-500 text-white ml-auto"
-                  : "bg-zinc-100 text-indigo-950"
-              }`}
-            >
-              <p className="text-sm">{msg.content}</p>
+  return (
+    <div
+      key={index}
+      className={`max-w-[75%] px-4 py-2 rounded-2xl shadow-sm ${
+        isSender
+          ? "bg-indigo-600 text-white self-end ml-auto"
+          : "bg-zinc-100 text-indigo-900 self-start mr-auto"
+      }`}
+    >
+      <p className={`text-sm ${isSender ? "text-white" : "text-indigo-950"}`}>
+        {linkifyText(msg.content)}
+      </p>
+      <div className="text-[10px] mt-1 text-right">
+        <span className={isSender ? "text-zinc-200" : "text-zinc-500"}>
+          {timestamp}
+        </span>
+        {isSender && msg.id === lastReadMessageId && (
+          <span className="ml-2 text-white">✓ Read</span>
+        )}
+      </div>
+    </div>
+  );
+})}
 
-              <div className="text-[10px] mt-1 text-right">
-                <span className={isSender ? "text-zinc-200" : "text-zinc-500"}>
-                  {timestamp}
-                </span>
-                {isSender && msg.id === lastReadMessageId && (
-                <span className="ml-2 text-white">✓ Read</span>
-                )}
-              </div>
-            </div>
-          );
-        })}
         <div ref={messagesEndRef} />
       </div>
 

@@ -3,11 +3,13 @@ import "./MellowPage.css"
 import SaveButton from '../../components/SaveButton/SaveButton';
 import { useAuth } from '../../context/AuthContext';
 import { logView } from '../../utils/logView';
+import SharePopup from '../../components/SharePopup/SharePopup';
 
 function MellowPage() {
     const [mellowNews, setMellowNews] = useState();
     const [loading, setLoading] = useState (true);
-      const { user } = useAuth();
+    const { user } = useAuth();
+    const [shareItem, setShareItem] = useState(null);
 
     async function fetchGoodGoodGood() {
         try {
@@ -102,88 +104,109 @@ function MellowPage() {
       }
       
 // Load all sections
-  useEffect(() => {
-    setLoading(true);
-    async function fetchMellowNews() {
-        const [
-            goodGoodGood,
-            goodNewsNetwork,
-            positiveNews,
-            reasonsToBeCheerful,
-            theOptimistDaily,
-        ] =
-        await Promise.all([
-            safeFetch(fetchGoodGoodGood),
-            safeFetch(fetchGoodNewsNetwork),
-            safeFetch(fetchPositiveNews),
-            safeFetch(fetchReasonsToBeCheerful),
-            safeFetch(fetchTheOptimistDaily),
-        ])
+useEffect(() => {
+  async function fetchMellowNews() {
+    const [goodGoodGood, goodNewsNetwork, positiveNews, reasonsToBeCheerful, theOptimistDaily] =
+      await Promise.all([
+        safeFetch(fetchGoodGoodGood),
+        safeFetch(fetchGoodNewsNetwork),
+        safeFetch(fetchPositiveNews),
+        safeFetch(fetchReasonsToBeCheerful),
+        safeFetch(fetchTheOptimistDaily),
+      ]);
 
-        const allMellowNews = interleaveBySource([
-            ...goodGoodGood,
-            ...goodNewsNetwork,
-            ...positiveNews,
-            ...reasonsToBeCheerful,
-            ...theOptimistDaily,
-        ])
+    const allMellowNews = interleaveBySource([
+      ...goodGoodGood,
+      ...goodNewsNetwork,
+      ...positiveNews,
+      ...reasonsToBeCheerful,
+      ...theOptimistDaily,
+    ]);
 
-        const sortedMellow = allMellowNews.sort((a, b) =>
-            new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0))
+    const sortedMellow = allMellowNews.sort(
+      (a, b) => new Date(b.pubDate || b.date || 0) - new Date(a.pubDate || a.date || 0)
+    );
 
-        setMellowNews(sortedMellow);
-    }
+    setMellowNews(sortedMellow);
+    setLoading(false);
+  }
 
-   setLoading(false);
-   fetchMellowNews();
+  fetchMellowNews();
+}, []);
 
-    }, [])
-
-
-
-  return (
-    <div className="mellow-page">
+return (
+  <div className="mellow-page">
     <h1 className="text-4xl font-semibold text-white mb-6 text-center">Breathe In, Scroll Out</h1>
 
-       {mellowNews && mellowNews.length > 0 ? (
-        mellowNews.map((story, index) => (
-            <div className="mellow-story">
-    <a
-      key={`${story.link}-${index}`}
-      href={story.link}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={() => {
-        if (user?.id && story?.link) {
-          logView({
-            userId: user.id,
-            content: {
-              id: story.link,
-              content_type: "article",
-              title: story.title,
-              url: story.link,
-             // image_url: story.image_url,
-              source: story.sourceLabel,
-            },
-          });
-        } else {
-          console.warn("⛔ Missing user or story data", { user, story });
-        }
-      }}
-      
-    >
-      <h1>{story.title}</h1>
-      
-    </a>
-    <SaveButton className="save-btn" story={story} />
-    </div>
-  ))
-) : (
-  <p className="loading">Loading feel-good stories...</p>
-)}
+    {loading ? (
+      <p className="loading">Loading feel-good stories...</p>
+    ) : (
+      mellowNews.map((story, index) => (
+        <div key={`${story.link}-${index}`} className="mellow-story relative">
+          <a
+            href={story.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              if (user?.id && story?.link) {
+                logView({
+                  userId: user.id,
+                  content: {
+                    id: story.link,
+                    content_type: "article",
+                    title: story.title,
+                    url: story.link,
+                    source: story.sourceLabel,
+                  },
+                });
+              }
+            }}
+          >
+            <h1>{story.title}</h1>
+          </a>
 
+          <SaveButton className="save-btn" story={story} />
+
+          {/* Share Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShareItem(story);
+            }}
+            className="absolute bottom-2 right-2 text-indigo-300 hover:bg-indigo-300 hover:text-white"
+            title="Share"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-share"
+            >
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" y1="2" x2="12" y2="15" />
+            </svg>
+          </button>
+        </div>
+      ))
+    )}
+
+    {shareItem && (
+      <SharePopup
+        url={shareItem.link}
+        title={shareItem.title}
+        onClose={() => setShareItem(null)}
+      />
+    )}
   </div>
-  )
+);
 }
 
-export default MellowPage
+export default MellowPage;
