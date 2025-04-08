@@ -7,6 +7,10 @@ const feeds = [
   { url: "https://feeds.feedburner.com/TechCrunch/", sourceLabel: "TechCrunch" },
   { url: "https://feeds.a.dj.com/rss/RSSMarketsMain.xml", sourceLabel: "WSJ Markets" },
   { url: "https://www.wired.com/feed/rss", sourceLabel: "Wired" },
+  { url: "https://www.cbsnews.com/latest/rss/technology", sourceLabel: "CBS Tech"},
+  {url: "https://www.cbsnews.com/latest/rss/moneywatch", sourceLabel: "CBS MoneyWatch"},
+  {url: "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness", sourceLabel: "WSJ Business"},
+  {url: "https://feeds.content.dowjones.io/public/rss/RSSWSJD", sourceLabel: "WSJ Tech"}
 ];
 
 export async function handler() {

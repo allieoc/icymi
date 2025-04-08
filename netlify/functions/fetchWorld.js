@@ -7,6 +7,8 @@ const feeds = [
   { url: "http://feeds.bbci.co.uk/news/world/rss.xml", sourceLabel: "BBC World" },
   { url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml", sourceLabel: "NYT World" },
   { url: "https://www.aljazeera.com/xml/rss/all.xml", sourceLabel: "Al Jazeera" },
+  {url: "https://www.cbsnews.com/latest/rss/world", sourceLabel: "CBS World"},
+  {url: "https://feeds.content.dowjones.io/public/rss/RSSWorldNews", sourceLabel: "WSJ World"}
 ];
 
 export async function handler() {

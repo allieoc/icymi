@@ -7,6 +7,10 @@ const feeds = [
   { url: "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml", sourceLabel: "NYT Politics" },
   { url: "http://feeds.bbci.co.uk/news/politics/rss.xml", sourceLabel: "BBC Politics" },
   { url: "http://rss.cnn.com/rss/cnn_allpolitics.rss", sourceLabel: "CNN Politics" },
+  { url: "https://rss.politico.com/politics-news.xml", sourceLabel: "Politico"},
+  { url: "https://www.thenation.com/subject/politics/feed/", sourceLabel: "The Nation"},
+  { url: "https://www.cbsnews.com/latest/rss/politics", sourceLabel: "CBS Politics"},
+  {url: "https://feeds.content.dowjones.io/public/rss/socialpoliticsfeed", sourceLabel: "WSJ Politics"}
 ];
 
 export async function handler() {

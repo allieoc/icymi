@@ -8,7 +8,11 @@ export async function handler() {
       "https://feeds.bbci.co.uk/news/rss.xml",
       "https://www.pbs.org/newshour/feeds/rss/headlines",
       "https://abcnews.go.com/abcnews/topstories",
-      "https://www.aljazeera.com/xml/rss/all.xml"
+      "https://www.aljazeera.com/xml/rss/all.xml",
+      "https://www.vox.com/rss/index.xml",
+      "https://www.cbsnews.com/latest/rss/main",
+      "https://abcnews.go.com/abcnews/usheadlines",
+      "https://feeds.content.dowjones.io/public/rss/RSSUSnews"
     ];
 
     const allStories = await Promise.all(

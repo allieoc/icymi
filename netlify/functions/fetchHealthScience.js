@@ -7,6 +7,9 @@ const feeds = [
   { url: "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml", sourceLabel: "NYT Health" },
   { url: "https://www.npr.org/rss/rss.php?id=1007", sourceLabel: "NPR Health" },
   { url: "https://www.statnews.com/feed/", sourceLabel: "STAT News" },
+  { url: "https://www.cbsnews.com/latest/rss/health", sourceLabel: "CBS Health"},
+  {url: "https://www.cbsnews.com/latest/rss/science", sourceLabel: "CBS Science"},
+  {url: "https://feeds.content.dowjones.io/public/rss/socialhealth", sourceLabel: "WSJ Health"}
 ];
 
 export async function handler() {
