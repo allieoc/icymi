@@ -4,7 +4,6 @@ const parser = new Parser();
 export async function handler() {
   try {
     const sources = [
-      "https://feeds.npr.org/1001/rss.xml",
       "https://feeds.bbci.co.uk/news/rss.xml",
       "https://www.pbs.org/newshour/feeds/rss/headlines",
       "https://abcnews.go.com/abcnews/topstories",
