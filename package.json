@@ -1,16 +1,17 @@
 {
   "name": "icymi",
   "version": "1.0.0",
- "scripts": {
-  "build": "vite build",
-  "dev": "vite"
-},
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.49.4",
     "@tailwindcss/vite": "^4.0.17",
     "axios": "^1.8.4",
+    "cheerio": "^1.0.0",
     "framer-motion": "^12.6.2",
     "lucide-react": "^0.485.0",
     "netlify-cli": "^16.4.2",
@@ -19,7 +20,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.3.0",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "unfluff": "^3.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

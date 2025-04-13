@@ -1,7 +1,7 @@
-import Parser from "rss-parser";
+const Parser = require("rss-parser");
 const parser = new Parser();
 
-export async function handler() {
+exports.handler = async function () {
   try {
     const sources = [
       "https://feeds.bbci.co.uk/news/rss.xml",
