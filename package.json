@@ -1,11 +1,11 @@
 {
   "name": "icymi",
   "version": "1.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
+ "scripts": {
+  "build": "vite build",
+  "dev": "vite",
+  "postinstall": "npm install"
+},
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
