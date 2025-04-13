@@ -1,0 +1,253 @@
+/* Fonts */
+.focused-page {
+    font-family: 'Lato', sans-serif;
+    margin-top: 0;
+    padding: 0;
+    background-color: #fff !important;
+    color: #211f46;
+  }
+  
+  .focused-page h1, h2, h3, h4 {
+    font-family: 'Libre Franklin', sans-serif;
+    margin: 0;
+    color: #211f46;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+
+  
+  /* Top Stories Layout */
+  .top-stories {
+    margin: 2rem 4rem;
+  }
+  
+  .top-stories h2 {
+    font-size: 1.75rem;
+    font-weight: bold;
+    font-family: "Libre Franklin", sans-serif;
+    margin-bottom: 1rem;
+  }
+  
+  .top-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  img {
+    object-fit: cover;
+    background-color: #eee;
+    border-radius: 6px;
+  }
+  
+  
+  /* Featured on the left */
+  .featured-story {
+    flex: 2;
+  }
+  
+  /* Side stories on the right */
+
+  .side-stories {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .side-story {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.75rem;
+    transition: background 0.2s ease;
+  }
+
+  .side-story a{
+    margin-bottom: 0;
+  }
+  
+  .side-stories a:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 6px;
+    padding-left: 0.25rem;
+  }
+  
+  .side-stories p {
+    font-weight: 500;
+    margin: 0 0 0.25rem;
+  }
+  
+  .side-stories .source {
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  .section-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 2rem 4rem;
+  }
+
+  .section-block .headline:hover{
+    text-decoration: underline;
+  }
+
+  
+  /* Let Reddit span all columns below the main grid */
+  .section-block.trending {
+    grid-column: 1 / -1;
+  }
+  
+  .section-block {
+    flex: 1 1 300px;
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .section-block-story{
+    margin-bottom: 0;
+    border-bottom: 1px solid grey;
+  }
+
+  .section-block button{
+    margin-bottom: 5px;
+  }
+
+  .section-block a{
+    margin-bottom: 0;
+    margin-top: 5px;
+  }
+  
+  .section-block h2 {
+    font-family: 'Libre Franklin', sans-serif;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .headline {
+    display: block;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: #000;
+  }
+  
+  .headline p {
+    font-family: 'Questrial', sans-serif;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .headline .source {
+    font-size: 0.85rem;
+    color: #444;
+  }
+
+ 
+  
+  /* Section-specific colors */
+  .politics {
+    background-color: #dce3f2;
+  }
+  
+  .health {
+    background-color: #fce9da;
+  }
+  
+  .world {
+    background-color: #eae2dd;
+  }
+  
+  .tech {
+    background-color: #cfdcf2;
+  }
+  
+  .trending {
+    background-color: #f4e0ef;
+  }
+
+
+   /* MEDIA QUERIES */
+
+    /* Responsive for large screens */
+    @media screen and (min-width: 1024px) {
+      .top-stories-grid {
+        grid-template-columns: 2fr 1fr;
+        margin: .5rem;
+      }
+    }
+  
+    /* Responsive for small screens */
+    @media (max-width: 900px) {
+      .side-story{
+        background-color:#e0efe8;
+      }
+      
+      .top-stories{
+        margin: 1rem;
+      }
+
+      .top-grid {
+        grid-template-columns: 1fr;
+      }
+    
+      .featured-story {
+        order: -1; /* show featured first on mobile */
+      }
+
+      .headline{
+        font-size: 20px;
+        padding: .5rem;
+      }
+
+      .section-grid{
+        margin: 1rem;
+      }
+
+      
+
+
+      .section-block h2{
+        font-size: 26px;
+        text-align: center;
+      }
+
+      .side-stories {
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        margin-left: -1rem;
+        margin-right: -1rem;
+        padding-left: 1rem;
+      }
+    
+      .side-stories > * {
+        flex: 0 0 85%;
+        scroll-snap-align: start;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        padding: 1rem;
+      }
+
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+    
+      .section-block.trending {
+        margin-top: 2rem;
+        grid-column: 1 / -1; /* Make sure it spans full width */
+      }
+    }

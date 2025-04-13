@@ -1,0 +1,50 @@
+.category-page {
+    padding: 1rem;
+  }
+  
+  .category-hero {
+    background: linear-gradient(to right, #cdf0ea, #f9f9c5, #d8f3dc);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .category-title{
+    color: #211f46;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .category-content .headline {
+    display: block;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .category-story{
+    padding: 1rem;
+    border-radius: 10px;
+    margin-left: 1rem;
+    position: relative;
+  }
+
+  .category-story:hover {
+    background: linear-gradient(to right, #e5eeff, #fff1e6,#ffedf7);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  
+  .story-data{
+    background: #f0f0f0;
+    color: #333;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  

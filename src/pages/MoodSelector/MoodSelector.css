@@ -1,0 +1,68 @@
+/* MoodSelector.css */
+
+.mood-selector-wrapper {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+<<<<<<< HEAD
+    background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #d4fc79);
+=======
+    background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #d4fc79, #96e6a1);
+>>>>>>> ecdc7264a7a8816dc5881561cdeb456b59046a9f
+    background-size: 800% 800%;
+    animation: gradientFlow 20s ease infinite;
+    font-family: 'Libre Franklin', sans-serif;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .mood-selector {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 2rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  select {
+    appearance: none;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 1rem;
+    font-size: 1rem;
+    width: 100%;
+    cursor: pointer;
+  }
+  
+  button {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    background-color: #111;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+  
+  button:hover {
+    background-color: #333;
+  }
+  
+  .mood-description {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
