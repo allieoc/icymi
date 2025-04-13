@@ -1,0 +1,12 @@
+[build]
+  functions = "netlify/functions"
+  publish = "dist"
+  node_version = "18"
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
