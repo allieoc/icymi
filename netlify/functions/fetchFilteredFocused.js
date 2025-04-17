@@ -1,9 +1,11 @@
+// /.netlify/functions/fetchFilteredFocused.js
+
 const Parser = require("rss-parser");
-const fallbackImage = "https://moodscroll.co/assets/featured-story.png"; 
-const parser = new Parser();
 const cheerio = require("cheerio");
 const fetch = require("node-fetch");
+const parser = new Parser();
 
+const fallbackImage = "https://moodscroll.co/assets/featured-story.png";
 
 async function getOgImage(url) {
   try {
@@ -11,23 +13,25 @@ async function getOgImage(url) {
     const html = await res.text();
     const $ = cheerio.load(html);
     const ogImage = $('meta[property="og:image"]').attr("content");
-    console.log(`🔍 OG image for ${url}:`, ogImage);
     return ogImage || null;
   } catch (err) {
     return null;
   }
 }
 
-exports.handler = async function () {
-  try {
-    const sources = [
-      "https://www.pbs.org/newshour/feeds/rss/headlines",
-      "https://abcnews.go.com/abcnews/topstories",
-      "https://www.cbsnews.com/latest/rss/main",
-      "https://abcnews.go.com/abcnews/usheadlines",
-      "https://feeds.content.dowjones.io/public/rss/RSSUSnews"
-    ];
+exports.handler = async function (event) {
+  const { blocked } = event.queryStringParameters;
+  const blockedKeywords = (blocked || "").split(",").map(k => k.trim().toLowerCase());
 
+  const sources = [
+    "https://www.pbs.org/newshour/feeds/rss/headlines",
+    "https://abcnews.go.com/abcnews/topstories",
+    "https://www.cbsnews.com/latest/rss/main",
+    "https://abcnews.go.com/abcnews/usheadlines",
+    "https://feeds.content.dowjones.io/public/rss/RSSUSnews"
+  ];
+
+  try {
     const allStories = await Promise.all(
       sources.map(async (url) => {
         try {
@@ -45,7 +49,6 @@ exports.handler = async function () {
               };
             })
           );
-         
           return enhancedItems;
         } catch (err) {
           console.error(`Failed to fetch ${url}`, err);
@@ -62,15 +65,20 @@ exports.handler = async function () {
       return true;
     });
 
+    const filtered = deduped.filter((story) => {
+      const content = `${story.title} ${story.description}`.toLowerCase();
+      return !blockedKeywords.some(keyword => content.includes(keyword));
+    });
+
     return {
       statusCode: 200,
-      body: JSON.stringify(deduped),
+      body: JSON.stringify(filtered)
     };
   } catch (err) {
-    console.error("❌ Error in fetchTopStories:", err);
+    console.error("❌ Error in fetchFilteredFocused:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch top stories." }),
+      body: JSON.stringify({ error: "Failed to fetch filtered focused stories." })
     };
   }
-}
+};

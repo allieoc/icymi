@@ -26,10 +26,7 @@ dist-ssr
 # Local Netlify folder
 .netlify
 node_modules/
-<<<<<<< HEAD
 
 .env
-=======
->>>>>>> ecdc7264a7a8816dc5881561cdeb456b59046a9f
 .env
 .env

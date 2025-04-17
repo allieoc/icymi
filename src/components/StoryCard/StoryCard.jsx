@@ -48,7 +48,7 @@ export default function StoryCard({
         {isFeatured && (
           <>
             {image_url && (
-              <img src={fallbackImage(story)} alt={cleanTitle} className="featured-image" />
+              <img src={image_url} alt={cleanTitle} className="featured-image" />
             )}
             <div className="featured-text">
               {cleanTitle && <h3>{cleanTitle}</h3>}

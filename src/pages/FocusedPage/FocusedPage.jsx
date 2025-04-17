@@ -21,10 +21,6 @@ export default function FocusedPage() {
   const [trendingNews, setTrendingNews] = useState([]);
   const [showShare, setShowShare] = useState(false);
 
-  const getStoryImage = async (story) => {
-    return story.image_url?.trim() ? story.image_url : defaultImage;
-  };
-
   function interleaveBySource(stories) {
     const groups = stories.reduce((acc, story) => {
       const source = story.sourceLabel || "unknown";
@@ -76,7 +72,6 @@ export default function FocusedPage() {
         const enhancedTop = await Promise.all(
           interleavedTop.slice(0, 6).map(async (story) => ({
             ...story,
-            image_url: await getStoryImage(story),
           }))
         );
   
@@ -130,6 +125,32 @@ export default function FocusedPage() {
   
   return (
     <div className="focused-page">
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-indigo-900 mb-1">
+          Filter out stories containing...
+        </label>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleKeywordFilter(); // you'll define this function
+          }}
+          className="flex gap-2"
+        >
+          <input
+            type="text"
+            value={filterInput}
+            onChange={(e) => setFilterInput(e.target.value)}
+            placeholder="e.g. Trump, violence"
+            className="flex-1 border border-zinc-300 px-3 py-2 rounded-md text-sm text-indigo-900"
+          />
+          <button
+            type="submit"
+            className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-md hover:bg-indigo-800"
+          >
+            Update Feed
+          </button>
+        </form>
+      </div>
       <section className="top-stories">
         <h2>Latest News</h2>
         <div className="top-grid">

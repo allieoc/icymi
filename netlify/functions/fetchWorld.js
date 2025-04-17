@@ -1,5 +1,5 @@
 // netlify/functions/fetchWorld.js
-import Parser from "rss-parser";
+const Parser = require("rss-parser");
 
 const parser = new Parser();
 
@@ -11,7 +11,7 @@ const feeds = [
   {url: "https://feeds.content.dowjones.io/public/rss/RSSWorldNews", sourceLabel: "WSJ World"}
 ];
 
-export async function handler() {
+exports.handler = async function () {
   try {
     const allItems = await Promise.all(
       feeds.map(async ({ url, sourceLabel }) => {

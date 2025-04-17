@@ -1,5 +1,5 @@
 // netlify/functions/fetchTrending.js
-import Parser from "rss-parser";
+const Parser = require("rss-parser");
 
 const parser = new Parser();
 
@@ -8,7 +8,7 @@ const feeds = [
   { url: "https://www.reddit.com/r/worldnews/.rss", sourceLabel: "Reddit /r/worldnews" },
 ];
 
-export async function handler() {
+exports.handler = async function () {
   try {
     const allItems = await Promise.all(
       feeds.map(async ({ url, sourceLabel }) => {

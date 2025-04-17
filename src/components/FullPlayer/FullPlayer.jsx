@@ -19,6 +19,8 @@ export default function FullPlayer() {
 
   if (!isExpanded || !track) return null;
 
+  
+
   const {
     title,
     channel,
@@ -26,6 +28,8 @@ export default function FullPlayer() {
     channelImage,
   } = track;
   
+
+
   const imageToUse =
     image_url || // episode-level image from podcast.js
     channelImage || // fallback from feed
