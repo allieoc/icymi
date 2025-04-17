@@ -1,6 +1,6 @@
 const Parser = require("rss-parser");
 const cheerio = require("cheerio");
-const fetch = require("node-fetch");
+const fetch = (...args) => import("node-fetch").then(({default: fetch}) => fetch(...args));
 const parser = new Parser();
 
 const fallbackImage = "https://moodscroll.co/assets/featured-story.png";

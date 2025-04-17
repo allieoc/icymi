@@ -177,7 +177,11 @@ export default function FocusedPage() {
         <button
           type="submit"
           onClick={handleApplyFilter}
-          className="mt-4 bg-indigo-600 text-white text-sm px-4 py-2 rounded-md hover:bg-indigo-800"
+          className={`mt-4 text-sm px-4 py-2 rounded-md transition ${
+            feedUpdated
+            ? "bg-green-500 text-white"
+            : "bg-indigo-600 text-white hover:bg-indigo-800"
+          }`}
         >
           {feedUpdated ? "Feed Updated" : "Update Feed"}
         </button>
