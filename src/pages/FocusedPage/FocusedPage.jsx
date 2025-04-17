@@ -7,6 +7,7 @@ import { NewsContext } from "../../context/NewsContext";
 import defaultImage from "../../assets/featured-story.png";
 import "./FocusedPage.css"
 import SharePopup from "../../components/SharePopup/SharePopup";
+import { Link } from "react-router-dom";
 
 
 export default function FocusedPage() {
@@ -20,6 +21,9 @@ export default function FocusedPage() {
   const [healthScienceNews, setHealthScienceNews] = useState([]);
   const [trendingNews, setTrendingNews] = useState([]);
   const [showShare, setShowShare] = useState(false);
+  const [filterInput, setFilterInput] = useState("");
+  const [filterKeywords, setFilterKeywords] = useState([]);
+
 
   function interleaveBySource(stories) {
     const groups = stories.reduce((acc, story) => {
@@ -122,17 +126,52 @@ export default function FocusedPage() {
       <SaveButton className="save-btn" story={story} />
     </div>
   );
+
+  const handleApplyFilter = () => {
+    const keywordArray = filterInput
+      .split(",")
+      .map((word) => word.trim().toLowerCase())
+      .filter(Boolean);
+  
+    setFilterKeywords(keywordArray);
+    refetchNews(keywordArray);
+  };
+  
+  const refetchNews = async (keywords = []) => {
+    try {
+      const res = await fetch("/.netlify/functions/fetchFilteredFocused", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ excludeKeywords: keywords }),
+      });
+  
+      const filtered = await res.json();
+  
+      const interleavedTop = interleaveBySource(filtered.top || []);
+      setFeaturedStory(interleavedTop[0]);
+      setSideStories(interleavedTop.slice(1));
+  
+      setPoliticsNews(interleaveBySource(filtered.politics || []));
+      setWorldNews(interleaveBySource(filtered.world || []));
+      setBusinessTechNews(interleaveBySource(filtered.business || []));
+      setHealthScienceNews(interleaveBySource(filtered.health || []));
+      setTrendingNews(interleaveBySource(filtered.trending || []));
+    } catch (err) {
+      console.error("❌ Error refetching filtered stories:", err);
+    }
+  };
+  
   
   return (
     <div className="focused-page">
-      <div className="mb-6">
+      <div className="m-auto mt-6 w-80">
         <label className="block text-sm font-medium text-indigo-900 mb-1">
-          Filter out stories containing...
+          Please don't show me stories about...
         </label>
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleKeywordFilter(); // you'll define this function
+            handleApplyFilter(); // you'll define this function
           }}
           className="flex gap-2"
         >
@@ -212,27 +251,27 @@ export default function FocusedPage() {
 
       <section className="section-grid">
         <div className="section-block politics">
-          <h2>Politics</h2>
+          <Link to='/category/politics'>Politics</Link>
           {politicsNews.slice(0, 5).map(renderStory)}
         </div>
 
         <div className="section-block health">
-          <h2>Health & Science</h2>
+          <Link to='/category/health'>Health & Science</Link>
           {healthScienceNews.slice(0, 5).map(renderStory)}
         </div>
 
         <div className="section-block world">
-          <h2>World News</h2>
+          <Link to='/category/world'>World News</Link>
           {worldNews.slice(0, 5).map(renderStory)}
         </div>
 
         <div className="section-block tech">
-          <h2>Business & Tech</h2>
+          <Link to='/category/business'>Business & Tech</Link>
           {businessTechNews.slice(0, 5).map(renderStory)}
         </div>
 
         <div className="section-block trending">
-          <h2>Trending on Reddit</h2>
+          <Link to='/category/trending'>Trending on Reddit</Link>
           {trendingNews.slice(0, 5).map(renderStory)}
         </div>
       </section>
