@@ -1,67 +1,19 @@
+// netlify/functions/fetchFilteredFocused.js
+
 const Parser = require("rss-parser");
-const cheerio = require("cheerio");
-const fetch = (...args) => import("node-fetch").then(({default: fetch}) => fetch(...args));
 const parser = new Parser();
 
 const fallbackImage = "https://moodscroll.co/assets/featured-story.png";
 
-async function getOgImage(url) {
-  try {
-    const res = await fetch(url, { timeout: 7000 });
-    const html = await res.text();
-    const $ = cheerio.load(html);
-    const ogImage = $('meta[property="og:image"]').attr("content");
-    console.log(`🔍 OG Image for ${url}:`, ogImage);
-    return ogImage || null;
-  } catch (err) {
-    console.error(`❌ Failed to fetch OG image for ${url}:`, err);
-    return null;
-  }
-}
-
-async function parseFeed(url, blockedKeywords = []) {
-  try {
-    console.log(`📡 Fetching feed: ${url}`);
-    const feed = await parser.parseURL(url);
-    const enhancedItems = await Promise.all(
-      feed.items.map(async (item) => {
-        const content = `${item.title} ${item.contentSnippet || item.content || ""}`.toLowerCase();
-        const isBlocked = blockedKeywords.some((k) => content.includes(k));
-        if (isBlocked) {
-          console.log(`🚫 Blocked due to keyword match: ${item.title}`);
-          return null;
-        }
-
-        const image = await getOgImage(item.link);
-        return {
-          title: item.title,
-          description: item.contentSnippet || item.content || "",
-          link: item.link,
-          pubDate: item.pubDate,
-          sourceLabel: feed.title,
-          image_url: image || null,
-        };
-      })
-    );
-
-    const results = enhancedItems.filter(Boolean);
-    console.log(`✅ Parsed ${results.length} stories from ${url}`);
-    return results;
-  } catch (err) {
-    console.error(`❌ Failed to parse ${url}`, err);
-    return [];
-  }
-}
-
 exports.handler = async function (event) {
-  let blockedKeywords = [];
-
-  try {
-    const body = JSON.parse(event.body || "{}");
-    blockedKeywords = (body.excludeKeywords || []).map((k) => k.trim().toLowerCase());
-  } catch (err) {
-    console.error("❌ Failed to parse POST body:", err);
-  }
+  const blockedKeywords = (() => {
+    try {
+      const body = JSON.parse(event.body || "{}");
+      return (body.excludeKeywords || []).map((k) => k.trim().toLowerCase());
+    } catch (e) {
+      return [];
+    }
+  })();
 
   console.log("🧹 Blocked keywords:", blockedKeywords);
 
@@ -72,7 +24,6 @@ exports.handler = async function (event) {
       "https://www.cbsnews.com/latest/rss/main",
     ],
     politics: [
-      "https://feeds.a.dj.com/rss/RSSPoliticsNews.xml",
       "https://www.npr.org/rss/rss.php?id=1014",
     ],
     world: [
@@ -99,21 +50,36 @@ exports.handler = async function (event) {
     for (const [category, urls] of Object.entries(sources)) {
       console.log(`\n🔍 Parsing category: ${category}`);
       const categoryStories = await Promise.all(
-        urls.map((url) => parseFeed(url, blockedKeywords))
+        urls.map(async (url) => {
+          try {
+            const feed = await parser.parseURL(url);
+            const filtered = feed.items.filter((item) => {
+              const content = `${item.title} ${item.contentSnippet || item.content || ""}`.toLowerCase();
+              return !blockedKeywords.some((keyword) => content.includes(keyword));
+            });
+            return filtered.map((item) => ({
+              title: item.title,
+              description: item.contentSnippet || item.content || "",
+              link: item.link,
+              pubDate: item.pubDate,
+              sourceLabel: feed.title,
+            }));
+          } catch (err) {
+            console.error(`❌ Failed to parse ${url}`, err);
+            return [];
+          }
+        })
       );
 
       const flat = categoryStories.flat();
-      const dedupedMap = new Map();
-      flat.forEach((story) => {
-        if (!dedupedMap.has(story.link)) {
-          dedupedMap.set(story.link, story);
-        }
-      });
-      const deduped = Array.from(dedupedMap.values()).slice(0, 6);
-      console.log(`📦 Final ${category} stories:`, deduped.length);
+      const seen = new Set();
+      const deduped = flat.filter((story) => {
+        if (!story.link || seen.has(story.link)) return false;
+        seen.add(story.link);
+        return true;
+      }).slice(0, 6);
 
-      if (category === "top" && deduped[0] && !deduped[0].image_url) {
-        console.log("🌟 Applying fallback image to top story");
+      if (category === "top" && deduped[0]) {
         deduped[0].image_url = fallbackImage;
       }
 
