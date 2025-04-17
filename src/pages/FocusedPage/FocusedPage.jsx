@@ -8,7 +8,7 @@ import defaultImage from "../../assets/featured-story.png";
 import "./FocusedPage.css"
 import SharePopup from "../../components/SharePopup/SharePopup";
 import { Link } from "react-router-dom";
-
+import KeywordTagInput from "../../components/KeywordTagInput/KeywordTagInput";
 
 export default function FocusedPage() {
   const { user } = useAuth();
@@ -23,7 +23,7 @@ export default function FocusedPage() {
   const [showShare, setShowShare] = useState(false);
   const [filterInput, setFilterInput] = useState("");
   const [filterKeywords, setFilterKeywords] = useState([]);
-
+  const [feedUpdated, setFeedUpdated] = useState(false);
 
   function interleaveBySource(stories) {
     const groups = stories.reduce((acc, story) => {
@@ -32,10 +32,10 @@ export default function FocusedPage() {
       acc[source].push(story);
       return acc;
     }, {});
-  
+
     const result = [];
     const groupKeys = Object.keys(groups);
-  
+
     let added = true;
     while (added) {
       added = false;
@@ -47,10 +47,22 @@ export default function FocusedPage() {
         }
       }
     }
-  
+
     return result;
   }
-  
+
+  useEffect(() => {
+    const stored = localStorage.getItem("filterKeywords");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setFilterKeywords(parsed);
+      refetchNews(parsed);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("filterKeywords", JSON.stringify(filterKeywords));
+  }, [filterKeywords]);
 
   useEffect(() => {
     async function fetchNews() {
@@ -70,23 +82,16 @@ export default function FocusedPage() {
           fetch("/.netlify/functions/fetchHealthScience").then((res) => res.json()),
           fetch("/.netlify/functions/fetchTrending").then((res) => res.json()),
         ]);
-  
-        // Interleave & enhance top stories
+
         const interleavedTop = interleaveBySource(topResponse);
-        const enhancedTop = await Promise.all(
-          interleavedTop.slice(0, 6).map(async (story) => ({
-            ...story,
-          }))
-        );
-  
-        setFeaturedStory(enhancedTop[0]);
-        setSideStories(enhancedTop.slice(1));
+        setFeaturedStory(interleavedTop[0]);
+        setSideStories(interleavedTop.slice(1));
         setPoliticsNews(interleaveBySource(politicsResponse));
         setWorldNews(interleaveBySource(worldResponse));
         setBusinessTechNews(interleaveBySource(businessResponse));
         setHealthScienceNews(interleaveBySource(healthResponse));
         setTrendingNews(interleaveBySource(trendingResponse));
-  
+
         setNewsState({
           politics: politicsResponse,
           world: worldResponse,
@@ -98,10 +103,9 @@ export default function FocusedPage() {
         console.error("❌ Error fetching focused page news:", err);
       }
     }
-  
+
     fetchNews();
   }, []);
-  
 
   const renderStory = (story) => (
     <div key={story.link} className="section-block-story relative">
@@ -127,16 +131,12 @@ export default function FocusedPage() {
     </div>
   );
 
-  const handleApplyFilter = () => {
-    const keywordArray = filterInput
-      .split(",")
-      .map((word) => word.trim().toLowerCase())
-      .filter(Boolean);
-  
-    setFilterKeywords(keywordArray);
-    refetchNews(keywordArray);
+  const handleApplyFilter = async () => {
+    await refetchNews(filterKeywords);
+    setFeedUpdated(true);
+    setTimeout(() => setFeedUpdated(false), 3000);
   };
-  
+
   const refetchNews = async (keywords = []) => {
     try {
       const res = await fetch("/.netlify/functions/fetchFilteredFocused", {
@@ -144,13 +144,13 @@ export default function FocusedPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ excludeKeywords: keywords }),
       });
-  
+
       const filtered = await res.json();
-  
+
       const interleavedTop = interleaveBySource(filtered.top || []);
       setFeaturedStory(interleavedTop[0]);
       setSideStories(interleavedTop.slice(1));
-  
+
       setPoliticsNews(interleaveBySource(filtered.politics || []));
       setWorldNews(interleaveBySource(filtered.world || []));
       setBusinessTechNews(interleaveBySource(filtered.business || []));
@@ -160,36 +160,29 @@ export default function FocusedPage() {
       console.error("❌ Error refetching filtered stories:", err);
     }
   };
-  
-  
+
   return (
     <div className="focused-page">
-      <div className="m-auto mt-6 w-80">
+      <div className="m-auto mt-6 w-full max-w-md">
         <label className="block text-sm font-medium text-indigo-900 mb-1">
-          Please don't show me stories about...
+          Please don’t show me stories about…
         </label>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleApplyFilter(); // you'll define this function
+        <KeywordTagInput 
+          tags={filterKeywords} 
+          setTags={(tags) => {
+            setFilterKeywords(tags);
+            setFeedUpdated(false);
           }}
-          className="flex gap-2"
+        />
+        <button
+          type="submit"
+          onClick={handleApplyFilter}
+          className="mt-4 bg-indigo-600 text-white text-sm px-4 py-2 rounded-md hover:bg-indigo-800"
         >
-          <input
-            type="text"
-            value={filterInput}
-            onChange={(e) => setFilterInput(e.target.value)}
-            placeholder="e.g. Trump, violence"
-            className="flex-1 border border-zinc-300 px-3 py-2 rounded-md text-sm text-indigo-900"
-          />
-          <button
-            type="submit"
-            className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-md hover:bg-indigo-800"
-          >
-            Update Feed
-          </button>
-        </form>
+          {feedUpdated ? "Feed Updated" : "Update Feed"}
+        </button>
       </div>
+
       <section className="top-stories">
         <h2>Latest News</h2>
         <div className="top-grid">
@@ -215,7 +208,6 @@ export default function FocusedPage() {
                   }}
                 />
                 <SaveButton className="save-btn" story={featuredStory} />
-            
               </>
             )}
           </div>
@@ -242,7 +234,6 @@ export default function FocusedPage() {
                   }}
                 />
                 <SaveButton className="save-btn" story={story} />
-               
               </div>
             ))}
           </div>
