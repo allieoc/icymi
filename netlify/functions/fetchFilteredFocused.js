@@ -22,27 +22,50 @@ exports.handler = async function (event) {
       "https://www.pbs.org/newshour/feeds/rss/headlines",
       "https://abcnews.go.com/abcnews/topstories",
       "https://www.cbsnews.com/latest/rss/main",
+      "https://abcnews.go.com/abcnews/usheadlines",
+      "https://feeds.content.dowjones.io/public/rss/RSSUSnews"
     ],
     politics: [
-      "https://www.npr.org/rss/rss.php?id=1014",
+      "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml",
+      "http://feeds.bbci.co.uk/news/politics/rss.xml",
+      "http://rss.cnn.com/rss/cnn_allpolitics.rss",
+      "https://rss.politico.com/politics-news.xml",
+      "https://www.thenation.com/subject/politics/feed/",
+      "https://www.cbsnews.com/latest/rss/politics",
+      "https://feeds.content.dowjones.io/public/rss/socialpoliticsfeed",
     ],
     world: [
       "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
       "https://www.aljazeera.com/xml/rss/all.xml",
+      "http://feeds.bbci.co.uk/news/world/rss.xml", 
+      "https://www.cbsnews.com/latest/rss/world",
+      "https://feeds.content.dowjones.io/public/rss/RSSWorldNews",
     ],
     business: [
       "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
       "https://feeds.feedburner.com/TechCrunch/",
+      "https://www.wired.com/feed/rss",
+      "https://www.cbsnews.com/latest/rss/technology",
+      "https://www.cbsnews.com/latest/rss/moneywatch",
+      "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness",
+      "https://feeds.content.dowjones.io/public/rss/RSSWSJD",
     ],
     health: [
       "https://www.npr.org/rss/rss.php?id=1128",
       "https://www.statnews.com/feed/",
+      "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml",
+      "https://www.cbsnews.com/latest/rss/health",
+      "https://www.cbsnews.com/latest/rss/science",
+      "https://feeds.content.dowjones.io/public/rss/socialhealth", 
     ],
     trending: [
       "https://www.reddit.com/r/news/.rss",
       "https://www.reddit.com/r/worldnews/.rss",
     ],
   };
+
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
   try {
     const results = {};
@@ -55,7 +78,11 @@ exports.handler = async function (event) {
             const feed = await parser.parseURL(url);
             const filtered = feed.items.filter((item) => {
               const content = `${item.title} ${item.contentSnippet || item.content || ""}`.toLowerCase();
-              return !blockedKeywords.some((keyword) => content.includes(keyword));
+              const pubDate = new Date(item.pubDate);
+              return (
+                pubDate > oneMonthAgo &&
+                !blockedKeywords.some((keyword) => content.includes(keyword))
+              );
             });
             return filtered.map((item) => ({
               title: item.title,
@@ -71,19 +98,34 @@ exports.handler = async function (event) {
         })
       );
 
-      const flat = categoryStories.flat();
-      const seen = new Set();
-      const deduped = flat.filter((story) => {
-        if (!story.link || seen.has(story.link)) return false;
-        seen.add(story.link);
-        return true;
-      }).slice(0, 6);
+      // Interleave by source
+      const groupedBySource = categoryStories.filter(Boolean).filter(arr => arr.length).reduce((acc, curr) => {
+        const source = curr[0].sourceLabel || "unknown";
+        acc[source] = curr;
+        return acc;
+      }, {});
 
-      if (category === "top" && deduped[0]) {
-        deduped[0].image_url = fallbackImage;
+      const interleaved = [];
+      let round = 0;
+      let added = true;
+
+      while ((category === "top" ? interleaved.length < 6 : true) && added) {
+        added = false;
+        for (const source in groupedBySource) {
+          if (groupedBySource[source][round]) {
+            interleaved.push(groupedBySource[source][round]);
+            added = true;
+            if (category === "top" && interleaved.length === 6) break;
+          }
+        }
+        round++;
       }
 
-      results[category] = deduped;
+      if (category === "top" && interleaved[0]) {
+        interleaved[0].image_url = "https://moodscroll.co/assets/featured-story.png";
+      }
+
+      results[category] = category === "top" ? interleaved.slice(0, 6) : interleaved;
     }
 
     return {

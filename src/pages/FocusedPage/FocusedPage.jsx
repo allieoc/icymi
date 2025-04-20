@@ -169,22 +169,12 @@ export default function FocusedPage() {
         </label>
         <KeywordTagInput 
           tags={filterKeywords} 
-          setTags={(tags) => {
-            setFilterKeywords(tags);
-            setFeedUpdated(false);
+          setTags={setFilterKeywords}
+          onTagsChange={(tags) => {
+            setFeedUpdated(false); // reset status
+            refetchNews(tags);     // immediately refresh
           }}
         />
-        <button
-          type="submit"
-          onClick={handleApplyFilter}
-          className={`mt-4 text-sm px-4 py-2 rounded-md transition ${
-            feedUpdated
-            ? "bg-green-500 text-white"
-            : "bg-indigo-600 text-white hover:bg-indigo-800"
-          }`}
-        >
-          {feedUpdated ? "Feed Updated" : "Update Feed"}
-        </button>
       </div>
 
       <section className="top-stories">
