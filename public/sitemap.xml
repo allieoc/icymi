@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://moodscroll.co/</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/focused</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/mellow</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/ready-to-listen</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/signup</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/login</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/saved</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/profile</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/inbox</loc>
+  </url>
+  <url>
+    <loc>https://moodscroll.co/friend-search</loc>
+  </url>
+</urlset>
