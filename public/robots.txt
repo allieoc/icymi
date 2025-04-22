@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /profile
+Disallow: /profile/
+Disallow: /messages/
+Disallow: /inbox
+Disallow: /saved
+Disallow: /friend-search
+Disallow: /signup
+Disallow: /login
+
+Allow: /
+
+Sitemap: https://moodscroll.co/sitemap.xml
